@@ -1,0 +1,22 @@
+{
+  "extends": [
+    "development"
+  ],
+  "hints": {
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "user-select",
+          "mask-image",
+          "-webkit-mask-size",
+          "-webkit-mask-position",
+          "text-align: -webkit-match-parent",
+          "-moz-user-select",
+          "-webkit-text-size-adjust",
+          "-o-transform"
+        ]
+      }
+    ]
+  }
+}
