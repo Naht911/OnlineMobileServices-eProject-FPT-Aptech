@@ -3,8 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OnlineMobileServices_API.Models;
 using OnlineMobileServices_Models.Models;
-using OnlineMobileServices_Models.Services;
+
 using OnlineMobileServices_Models.DTOs;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using OnlineMobileServices_Models.Services;
 namespace OnlineMobileServices_API.Controllers
 {
     [ApiController]
@@ -23,38 +28,52 @@ namespace OnlineMobileServices_API.Controllers
 
 
         [HttpPost("login")]
-        public async Task<ActionResult<User>> Login(UserLoginDTO _user)
+        public async Task<IActionResult> Login(UserLoginDTO userDTOLogin)
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.MobileNumber == _user.MobileNumber);
-                var errorObject = new { message = "Incorrect phone number or password" };
-                var errorJson = JsonConvert.SerializeObject(errorObject);
+                // 1. Find user by mobile number
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.MobileNumber == userDTOLogin.MobileNumber);
+
+                // 2. Check if user exists
                 if (user == null)
                 {
-
-                    return StatusCode(401, errorJson);
+                    return BadRequest("Invalid mobile number or password");
                 }
 
-                string hashedPassword = _userService.HashPassword(_user.Password);
-
-                // Kiểm tra xem mật khẩu đã hash có khớp với mật khẩu gốc không
-                bool isMatch = user.Password.Equals(hashedPassword);
-                if (!isMatch)
+                // 3. Validate password
+                string hashedPassword = _userService.HashPassword(userDTOLogin.Password);
+                if (!user.Password.Equals(hashedPassword))
                 {
-                    return StatusCode(401, errorJson);
+                    return BadRequest("Invalid mobile number or password");
                 }
 
+                // 4. Generate JWT token
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(UserService.GetJwtSecret()); // Replace with your secret key 
 
-                return Ok(user);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new System.Security.Claims.ClaimsIdentity(new[] {
+                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString())
+            }),
+                    Expires = DateTime.UtcNow.AddMinutes(30), // Set token expiration time
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                // 5. Return user data and token
+                return Ok(new { user = user, token = tokenString });
             }
             catch (Exception e)
             {
-                var errorObject = new { message = "Something went wrong" };
-                var errorJson = JsonConvert.SerializeObject(errorObject);
-                return StatusCode(500, errorJson); // Trả về mã lỗi 500 Internal Server Error với thông báo JSON tùy chỉnh
+                Console.WriteLine(e.Message); // Log the error
+                return StatusCode(500, "Internal server error"); // Improve error message for user
             }
         }
+
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(User newUser)

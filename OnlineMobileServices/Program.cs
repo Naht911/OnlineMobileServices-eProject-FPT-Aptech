@@ -8,8 +8,8 @@ namespace OnlineMobileServices_FE
             var builder = WebApplication.CreateBuilder(args);
             var port = builder.Configuration.GetValue<int>("Port", 8000);
             builder.WebHost.UseUrls("http://localhost:" + port);
-            
-            
+
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             // Add services to the container.
@@ -21,7 +21,7 @@ namespace OnlineMobileServices_FE
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-           
+
             app.UseStaticFiles();
 
             app.UseRouting();

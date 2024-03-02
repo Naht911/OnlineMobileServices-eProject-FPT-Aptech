@@ -1,12 +1,29 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.Extensions.Configuration;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace OnlineMobileServices_Models.Services
 {
     public class UserService
     {
+        private static IConfiguration _configuration;
+
+        public static UserService()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsetting.json", optional: true, reloadOnChange: true);
+
+            _configuration = builder.Build();
+        }
+
+        public static string GetJwtSecret()
+        {
+            return _configuration["Jwt:Secret"] ?? String.Empty;
+        }
         public string HashPassword(string password)
         {
+
             using (SHA256 sha256Hash = SHA256.Create())
             {
                 // Hash mật khẩu
