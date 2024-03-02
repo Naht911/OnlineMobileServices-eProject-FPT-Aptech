@@ -1,12 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineMobileServices_FE.Models;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using OnlineMobileServices_Models.Models;
+using OnlineMobileServices_Models.DTOs;
+using System.Text;
 
 namespace OnlineMobileServices_FE.Controllers
 {
     public class HomeController : Controller
     {
+
         private readonly ILogger<HomeController> _logger;
+        HttpClient client = new HttpClient();
+        private string url = $"{Program.ApiUrl}/";
+        private string url_user = $"{Program.ApiUrl}/User";
+
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -27,7 +36,72 @@ namespace OnlineMobileServices_FE.Controllers
         public IActionResult Error()
         {
             Console.WriteLine("Error");
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new Models.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<User>> Login(UserLoginDTO userDTOLogin)
+        {
+            try
+            {
+                
+
+                var response = client.PostAsJsonAsync<UserLoginDTO>($"{url_user}/Login", userDTOLogin).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    //return json to client
+                    var result = response.Content.ReadAsStringAsync().Result;
+                    var _user = JsonConvert.DeserializeObject<User>(result);
+                    var obj = new
+                    {
+                        status = 1,
+                        message = $"Login sucsses",
+                        data = _user
+                    };
+                    var json = JsonConvert.SerializeObject(obj);
+                    return StatusCode(200, json);
+
+                }
+                var errorObject = new { message = $"Incorrect phone number or password {userDTOLogin.MobileNumber} - {userDTOLogin.MobileNumber}" };
+                var errorJson = JsonConvert.SerializeObject(response);
+                return StatusCode(401, errorJson);
+            }
+            catch (System.Exception)
+            {
+
+                var errorObject = new { message = "Something went wrong" };
+                var errorJson = JsonConvert.SerializeObject(errorObject);
+                return StatusCode(500, errorJson); // Trả về mã lỗi 500 Internal Server Error với thông báo JSON tùy chỉnh
+            }
+
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Register(User user)
+        {
+            var data = JsonConvert.SerializeObject(user);
+            var content = new StringContent(data, Encoding.UTF8, "application/json");
+            var response = client.PostAsync(url_user, content).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Login");
+            }
+            return View();
+        }
+
+
+
     }
 }

@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OnlineMobileServices_API.Models;
+using OnlineMobileServices_Models.DTOs;
 using OnlineMobileServices_Models.Models;
 using OnlineMobileServices_Models.Services;
+
 namespace OnlineMobileServices_API.Controllers
 {
     [ApiController]
@@ -22,27 +24,30 @@ namespace OnlineMobileServices_API.Controllers
 
 
         [HttpPost("login")]
-        public async Task<ActionResult<User>> Login(string MobileNumber, string password)
+        public async Task<ActionResult<User>> Login(UserLoginDTO _user)
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.MobileNumber == MobileNumber);
-
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.MobileNumber == _user.MobileNumber);
+                var errorObject = new { message = "Incorrect phone number or password" };
+                var errorJson = JsonConvert.SerializeObject(errorObject);
                 if (user == null)
                 {
-                    return Unauthorized(); // Trả về mã lỗi 404 Not Found nếu không tìm thấy người dùng
+
+                    return StatusCode(401, errorJson);
                 }
 
-                string hashedPassword = _userService.HashPassword(password);
+                string hashedPassword = _userService.HashPassword(_user.Password);
 
                 // Kiểm tra xem mật khẩu đã hash có khớp với mật khẩu gốc không
                 bool isMatch = user.Password.Equals(hashedPassword);
-                if (isMatch)
+                if (!isMatch)
                 {
-                    return Ok(user); // Trả về mã thành công 200 và thông tin người dùng nếu mật khẩu khớp
+                    return StatusCode(401, errorJson);
                 }
 
-                return Unauthorized(); // Trả về mã lỗi 401 Unauthorized nếu mật khẩu không khớp
+
+                return Ok(user);
             }
             catch (Exception e)
             {
