@@ -49,7 +49,21 @@ namespace OnlineMobileServices_FE.Controllers
         {
             try
             {
-                
+                //kiểm tra xem có session chưa
+                var userJson = HttpContext.Session.GetString("User");
+                if (userJson != null)
+                {
+                    var user = JsonConvert.DeserializeObject<User>(userJson);
+                    var obj = new
+                    {
+                        status = 1,
+                        message = $"Already login",
+                        data = user
+                    };
+                    var json = JsonConvert.SerializeObject(obj);
+                    return StatusCode(200, json);
+                }
+
 
                 var response = client.PostAsJsonAsync<UserLoginDTO>($"{url_user}/Login", userDTOLogin).Result;
 
@@ -58,6 +72,8 @@ namespace OnlineMobileServices_FE.Controllers
                     //return json to client
                     var result = response.Content.ReadAsStringAsync().Result;
                     var _user = JsonConvert.DeserializeObject<User>(result);
+                    // save _user to session
+                    HttpContext.Session.SetString("User", JsonConvert.SerializeObject(_user));
                     var obj = new
                     {
                         status = 1,

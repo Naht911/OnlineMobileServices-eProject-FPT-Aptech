@@ -23,9 +23,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\OnlineMobileServices_Models\OnlineMobileServices_Models.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\OnlineMobileServices_Models\OnlineMobileServices_Models.csproj" />
+	</ItemGroup>
 
   <ItemGroup>
     <Folder Include="Migrations\" />
