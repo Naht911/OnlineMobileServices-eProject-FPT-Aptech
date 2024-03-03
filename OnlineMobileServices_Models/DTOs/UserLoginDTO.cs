@@ -8,7 +8,7 @@ namespace OnlineMobileServices_Models.DTOs
 {
     public class UserLoginDTO
     {
-        public string MobileNumber { get; set; }
-        public string Password { get; set; }
+        public required string MobileNumber { get; set; }
+        public required string Password { get; set; }
     }
 }

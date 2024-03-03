@@ -38,33 +38,36 @@ namespace OnlineMobileServices_API.Controllers
                 // 2. Check if user exists
                 if (user == null)
                 {
-                    return BadRequest("Invalid mobile number or password");
+                    return Unauthorized();
                 }
 
                 // 3. Validate password
                 string hashedPassword = _userService.HashPassword(userDTOLogin.Password);
                 if (!user.Password.Equals(hashedPassword))
                 {
-                    return BadRequest("Invalid mobile number or password");
+                    return Unauthorized();
                 }
 
                 // 4. Generate JWT token
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(UserService.GetJwtSecret()); // Replace with your secret key 
-                Console.WriteLine(UserService.GetJwtSecret()); // Log the error 
-                Console.WriteLine(UserService.GetJwtSecret()); // Log the error 
-
+                var key = Encoding.ASCII.GetBytes(UserService.GetJwtSecret());
+                //Lưu thông tin user vào token
+                var User_id = new Claim("User_id", user.UserID.ToString());
+                var MobileNumber = new Claim("MobileNumber", user.MobileNumber);
+                var Role = new Claim("Role", user.Role);
+                var Email = new Claim("Email", user.Email);
+                var claims = new Claim[] { User_id, MobileNumber, Role };
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
-                    Subject = new System.Security.Claims.ClaimsIdentity(new[] {
-                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString())
-            }),
+                    Subject = new ClaimsIdentity(claims),
                     Expires = DateTime.UtcNow.AddMinutes(30), // Set token expiration time
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
 
+
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 var tokenString = tokenHandler.WriteToken(token);
+
 
                 // 5. Return user data and token
                 return Ok(new { user = user, token = tokenString });
@@ -99,7 +102,7 @@ namespace OnlineMobileServices_API.Controllers
                 // Trả về mã thành công 201 Created và thông tin người dùng mới
                 return CreatedAtAction(nameof(GetUserById), new { id = newUser.UserID }, newUser);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // Trả về mã lỗi 500 Internal Server Error nếu có lỗi xảy ra trong quá trình xử lý
                 var errorObject = new { message = "Something went wrong" };
@@ -122,7 +125,7 @@ namespace OnlineMobileServices_API.Controllers
 
                 return Ok(user); // Trả về mã thành công 200 và thông tin người dùng nếu tìm thấy
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // Trả về mã lỗi 500 Internal Server Error nếu có lỗi xảy ra trong quá trình xử lý
                 var errorObject = new { message = "Something went wrong" };

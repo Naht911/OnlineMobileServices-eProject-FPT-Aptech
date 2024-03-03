@@ -1,6 +1,8 @@
 {
     "version": "0.2.0",
     "configurations": [
+        
+
         {
             "name": "API",
             "type": "coreclr",
@@ -10,8 +12,10 @@
             "cwd": "${workspaceFolder}/OnlineMobileServices_API",
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "launchBrowser": "false"
-            }
+                "launchBrowser": "false",
+                "API_URL": "https://localhost:8000",
+            },
+            "preLaunchTask": "build API"
         },
         {
             "name": "FE",
@@ -22,19 +26,31 @@
             "cwd": "${workspaceFolder}/OnlineMobileServices",
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "launchBrowser": "false"
-            }
+                "launchBrowser": "false",
+                "API_URL": "https://localhost:8000"
+            },
+            "preLaunchTask": "build FE"
         }
     ],
     "compounds": [
         {
-            "name": "Server/Client",            
+            "name": "Both API and FE",
             "configurations": [
                 "API",
                 "FE"
             ]
         }
-    ]
+    ],
+    "symbolSearchPaths": [
+        "!**\\Microsoft.IdentityModel.Logging.dll"
+    ],
+    "Console": {
+        "filter": {
+            "exclude": [
+                {
+                    "message": "Loaded"
+                }
+            ]
+        }
+    }
 }
-// "project1": "${workspaceFolder}/OnlineMobileServices/bin/Debug/net8.0/OnlineMobileServices_FE.dll",
-// "project2": "${workspaceFolder}/OnlineMobileServices_API/bin/Debug/net8.0/OnlineMobileServices_API.dll"
