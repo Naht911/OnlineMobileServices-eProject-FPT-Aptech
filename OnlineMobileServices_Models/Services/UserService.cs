@@ -6,21 +6,12 @@ namespace OnlineMobileServices_Models.Services
 {
     public class UserService
     {
-        private static IConfiguration _configuration;
 
-         static UserService()
-        {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
-            _configuration = builder.Build();
-        }
+        private static readonly String Jwt_Secret = "03140c405e133408a70ceac8f263058feceecc29d0b5d079238637be5dd2879cf";
 
         public static string GetJwtSecret()
         {
-            // return _configuration["Jwt:Secret"] ?? "03140c405e133408a70ceac8f263058feceecc29d0b5d079238637be5dd2879cf";
-            return _configuration.GetSection("Jwt:Secret").Value ?? "03140c405e133408a70ceac8f263058feceecc29d0b5d079238637be5dd2879cf";
+            return Jwt_Secret;
         }
         public string HashPassword(string password)
         {

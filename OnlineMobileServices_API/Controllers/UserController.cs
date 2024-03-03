@@ -51,7 +51,9 @@ namespace OnlineMobileServices_API.Controllers
                 // 4. Generate JWT token
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(UserService.GetJwtSecret()); // Replace with your secret key 
-                Console.WriteLine(UserService.GetJwtSecret()); // Log the error
+                Console.WriteLine(UserService.GetJwtSecret()); // Log the error 
+                Console.WriteLine(UserService.GetJwtSecret()); // Log the error 
+
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new System.Security.Claims.ClaimsIdentity(new[] {

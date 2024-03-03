@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "API",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/OnlineMobileServices_API/bin/Debug/net8.0/OnlineMobileServices_API.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/OnlineMobileServices_API",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "launchBrowser": "false"
+            }
+        },
+        {
+            "name": "FE",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/OnlineMobileServices/bin/Debug/net8.0/OnlineMobileServices_FE.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/OnlineMobileServices",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "launchBrowser": "false"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Server/Client",            
+            "configurations": [
+                "API",
+                "FE"
+            ]
+        }
+    ]
+}
+// "project1": "${workspaceFolder}/OnlineMobileServices/bin/Debug/net8.0/OnlineMobileServices_FE.dll",
+// "project2": "${workspaceFolder}/OnlineMobileServices_API/bin/Debug/net8.0/OnlineMobileServices_API.dll"
