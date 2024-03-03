@@ -48,25 +48,8 @@ namespace OnlineMobileServices_API.Controllers
                     return Unauthorized();
                 }
 
-                // 4. Generate JWT token
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(UserService.GetJwtSecret());
-                //Lưu thông tin user vào token
-                var User_id = new Claim("User_id", user.UserID.ToString());
-                var MobileNumber = new Claim("MobileNumber", user.MobileNumber);
-                var Role = new Claim("Role", user.Role);
-                var Email = new Claim("Email", user.Email);
-                var claims = new Claim[] { User_id, MobileNumber, Role };
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.UtcNow.AddMinutes(30), // Set token expiration time
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                };
-
-
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                var tokenString = tokenHandler.WriteToken(token);
+                
+                var tokenString = UserService.GenerateToken(user);
 
 
                 // 5. Return user data and token

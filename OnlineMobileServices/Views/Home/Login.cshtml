@@ -55,19 +55,19 @@
             $("#doLogin").submit(function (event) {
                 event.preventDefault(); // Prevent default form submission
 
-                var loginData = {
+                 var loginData = {
                     MobileNumber: $("#MobileNumber").val(),
                     Password: $("#Password").val()
                 };
                 var jsonData = JSON.stringify(loginData);
-
+                var formData = $(this).serializeArray();
                 if (MobileNumber && Password) {
                     $.ajax({
-                        url: '@Program.ApiUrl' + '/User/Login',
+                        url: '@Url.Action("Login", "Home")',
                         type: 'post',
                         dataType: 'json',
-                        contentType: 'application/json',
-                        data: jsonData,
+                        @* contentType: 'application/json', *@
+                        data: formData,
                         beforeSend: function () {
                             console.log("beforeSend");
                             $('button[name="login"]').html('<i class="fas fa-spinner fa-spin"></i> Progressing...').attr('disabled', 'disabled');
@@ -85,7 +85,7 @@
                                     confirmButtonText: 'OK'
                                 }).then((result) => {
                                     if (result.value) {
-                                        window.location.assign('/');
+                                        @* window.location.assign('/'); *@
                                     }
                                 });
                             } else {

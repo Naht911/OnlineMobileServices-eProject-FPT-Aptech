@@ -13,6 +13,14 @@ namespace OnlineMobileServices_FE
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             // Add services to the container.
+            //Bật session
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = false;
+                options.Cookie.IsEssential = true;
+            });
 
             var app = builder.Build();
 
@@ -27,6 +35,8 @@ namespace OnlineMobileServices_FE
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.MapControllerRoute(
                 name: "default",

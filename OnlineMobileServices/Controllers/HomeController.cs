@@ -45,10 +45,13 @@ namespace OnlineMobileServices_FE.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> Login(UserLoginDTO userDTOLogin)
+        public async Task<IActionResult> Login(UserLoginDTO userDTOLogin)
         {
             try
             {
+                Object errorObject;
+                var errorJson = "";
+                // Console.WriteLine($"Incorrect phone number or password {userDTOLogin.MobileNumber} - {userDTOLogin.MobileNumber}");
                 //kiểm tra xem có session chưa
                 var userJson = HttpContext.Session.GetString("User");
                 if (userJson != null)
@@ -69,29 +72,40 @@ namespace OnlineMobileServices_FE.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    //return json to client
-                    var result = response.Content.ReadAsStringAsync().Result;
-                    var _user = JsonConvert.DeserializeObject<User>(result);
-                    // save _user to session
-                    HttpContext.Session.SetString("User", JsonConvert.SerializeObject(_user));
-                    var obj = new
+                    var result = await response.Content.ReadAsStringAsync();
+                    var responseData = JsonConvert.DeserializeObject<dynamic>(result);
+
+                    // Lấy token từ dữ liệu trả về
+                    string token = responseData?.token;
+
+                    // Lấy thông tin người dùng từ dữ liệu trả về
+                    User _user = responseData.user.ToObject<User>();
+
+                    if (token != null && _user != null)
                     {
-                        status = 1,
-                        message = $"Login sucsses",
-                        data = _user
-                    };
-                    var json = JsonConvert.SerializeObject(obj);
-                    return StatusCode(200, json);
+                        var obj = new
+                        {
+                            status = 1,
+                            message = $"Login sucsses, welcome back",
+                            token
+                        };
+                        HttpContext.Session.SetString("User", JsonConvert.SerializeObject(_user));
+                        HttpContext.Session.SetString("User", token);
+
+                        var json = JsonConvert.SerializeObject(obj);
+                        return StatusCode(200, json);
+                    }
 
                 }
-                var errorObject = new { message = $"Incorrect phone number or password {userDTOLogin.MobileNumber} - {userDTOLogin.MobileNumber}" };
-                var errorJson = JsonConvert.SerializeObject(response);
+
+                errorObject = new { message = $"Incorrect phone number or password" };
+                errorJson = JsonConvert.SerializeObject(response);
                 return StatusCode(401, errorJson);
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
 
-                var errorObject = new { message = "Something went wrong" };
+                var errorObject = new { message = "Something went wrong", error = e.Message };
                 var errorJson = JsonConvert.SerializeObject(errorObject);
                 return StatusCode(500, errorJson); // Trả về mã lỗi 500 Internal Server Error với thông báo JSON tùy chỉnh
             }

@@ -1,4 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using OnlineMobileServices_Models.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -8,6 +12,34 @@ namespace OnlineMobileServices_Models.Services
     {
 
         private static readonly String Jwt_Secret = "03140c405e133408a70ceac8f263058feceecc29d0b5d079238637be5dd2879cf";
+
+        public static string GenerateToken(User user)
+        {
+            // 4. Generate JWT token
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(UserService.GetJwtSecret());
+            //Lưu thông tin user vào token
+            var User_id = new Claim("User_id", user.UserID.ToString());
+            // var MobileNumber = new Claim("MobileNumber", user.MobileNumber);
+            var Role = new Claim("Role", user.Role);
+            // var Email = new Claim("Email", user.Email);
+            // var FirstName = new Claim("FirstName", user.FirstName);
+            // var LastName = new Claim("LastName", user.LastName);
+            // var Address = new Claim("Address", user.Address);
+            // var claims = new Claim[] { User_id, MobileNumber, Role, Email, FirstName, LastName, Address };
+            var claims = new Claim[] { User_id, Role };
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(30), // Set token expiration time
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+            return tokenString;
+        }
 
         public static string GetJwtSecret()
         {
