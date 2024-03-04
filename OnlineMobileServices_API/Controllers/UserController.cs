@@ -48,7 +48,7 @@ namespace OnlineMobileServices_API.Controllers
                     return Unauthorized();
                 }
 
-                
+
                 var tokenString = UserService.GenerateToken(user);
 
 
@@ -111,6 +111,33 @@ namespace OnlineMobileServices_API.Controllers
             catch (Exception)
             {
                 // Trả về mã lỗi 500 Internal Server Error nếu có lỗi xảy ra trong quá trình xử lý
+                var errorObject = new { message = "Something went wrong" };
+                var errorJson = JsonConvert.SerializeObject(errorObject);
+                return StatusCode(500, errorJson);
+            }
+        }
+
+        [HttpGet("token")]
+        public async Task<ActionResult<User>> GetUserByToken(string token)
+        {
+            try
+            {
+                var uid = _userService.GetUserIdFromToken(token);
+                if (uid == -1)
+                {
+                    return Unauthorized();
+                }
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.UserID == uid);
+
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+                // Console.WriteLine("Authorized");
+                return Ok(user);
+            }
+            catch (Exception)
+            {
                 var errorObject = new { message = "Something went wrong" };
                 var errorJson = JsonConvert.SerializeObject(errorObject);
                 return StatusCode(500, errorJson);

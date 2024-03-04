@@ -11,14 +11,13 @@ namespace OnlineMobileServices_Models.Services
     public class UserService
     {
 
-        private static readonly String Jwt_Secret = "03140c405e133408a70ceac8f263058feceecc29d0b5d079238637be5dd2879cf";
+        private static readonly String _jwtSecret = "03140c405e133408a70ceac8f263058feceecc29d0b5d079238637be5dd2879cf";
 
         public static string GenerateToken(User user)
         {
-            // 4. Generate JWT token
+
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(UserService.GetJwtSecret());
-            //Lưu thông tin user vào token
+            var key = Encoding.ASCII.GetBytes(GetJwtSecret());
             var User_id = new Claim("User_id", user.UserID.ToString());
             // var MobileNumber = new Claim("MobileNumber", user.MobileNumber);
             var Role = new Claim("Role", user.Role);
@@ -41,9 +40,63 @@ namespace OnlineMobileServices_Models.Services
             return tokenString;
         }
 
+        //Verify token
+        public ClaimsPrincipal GetPrincipalFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_jwtSecret);
+
+            try
+            {
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    RequireExpirationTime = true,
+                    ValidateLifetime = true
+                };
+
+                SecurityToken securityToken;
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out securityToken);
+
+                if (!(securityToken is JwtSecurityToken jwtSecurityToken) ||
+                    !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                    throw new SecurityTokenException("Invalid token");
+
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        //get user id from token
+        public int GetUserIdFromToken(string token)
+        {
+            var principal = GetPrincipalFromToken(token);
+            if (principal == null)
+                return -1;
+            var user_id = principal.FindFirst("User_id")?.Value ?? "-1";
+            return int.Parse(user_id);
+        }
+
+        public bool IsTokenValid(string token)
+        {
+            var principal = GetPrincipalFromToken(token);
+
+            if (principal == null)
+                return false;
+
+            return true;
+        }
+
+
         public static string GetJwtSecret()
         {
-            return Jwt_Secret;
+            return _jwtSecret;
         }
         public string HashPassword(string password)
         {
