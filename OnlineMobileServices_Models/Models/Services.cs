@@ -17,7 +17,8 @@ namespace OnlineMobileServices_Models.Models
         [Column(TypeName = "varchar(50)")]
         public string ServiceName { get; set; }
 
-        [Column(TypeName = "varchar(50)")]
-        public string? ServiceDescription { get; set; }
+        [Column(TypeName = "varchar(512)")]
+        public string? Description { get; set; }
+        public IEnumerable<ServiceHistory>? ServiceHistories { get; set; }
     }
 }

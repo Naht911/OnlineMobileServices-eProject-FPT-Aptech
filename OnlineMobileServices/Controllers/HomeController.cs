@@ -90,7 +90,7 @@ namespace OnlineMobileServices_FE.Controllers
                             token
                         };
                         HttpContext.Session.SetString("User", JsonConvert.SerializeObject(_user));
-                        HttpContext.Session.SetString("User", token);
+                        HttpContext.Session.SetString("Token", token);
 
                         var json = JsonConvert.SerializeObject(obj);
                         return StatusCode(200, json);
