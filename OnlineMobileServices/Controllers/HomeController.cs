@@ -41,6 +41,17 @@ namespace OnlineMobileServices_FE.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            //check have session or not
+            var userJson = HttpContext.Session.GetString("User");
+            if (userJson != null)
+            {
+                var user = JsonConvert.DeserializeObject<User>(userJson);
+                if (user != null)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+            }
             return View();
         }
 
@@ -51,6 +62,23 @@ namespace OnlineMobileServices_FE.Controllers
             {
                 Object errorObject;
                 var errorJson = "";
+                //check null
+                if (userDTOLogin.MobileNumber == null || userDTOLogin.Password == null)
+                {
+                    errorObject = new { message = "Please enter phone number and password" };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(400, errorJson);
+                }
+
+                //check 10 digit phone number
+                if (userDTOLogin.MobileNumber.Length != 10)
+                {
+                    errorObject = new { message = "Phone number must be 10 digits" };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(400, errorJson);
+                }
+
+
                 // Console.WriteLine($"Incorrect phone number or password {userDTOLogin.MobileNumber} - {userDTOLogin.MobileNumber}");
                 //kiểm tra xem có session chưa
                 var userJson = HttpContext.Session.GetString("User");
@@ -119,16 +147,91 @@ namespace OnlineMobileServices_FE.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(User user)
+        public async Task<IActionResult> Register(UserLoginDTO userDTOLogin)
         {
-            var data = JsonConvert.SerializeObject(user);
-            var content = new StringContent(data, Encoding.UTF8, "application/json");
-            var response = client.PostAsync(url_user, content).Result;
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return RedirectToAction("Login");
+                Object errorObject;
+                var errorJson = "";
+                //check null
+                if (userDTOLogin.MobileNumber == null || userDTOLogin.Password == null)
+                {
+                    errorObject = new { message = "Please enter phone number and password" };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(400, errorJson);
+                }
+                //check phone number is number
+                if (!int.TryParse(userDTOLogin.MobileNumber, out int n))
+                {
+                    errorObject = new { message = "Phone number must be number" };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(400, errorJson);
+                }
+                //check 10 digit phone number
+                if (userDTOLogin.MobileNumber.Length != 10)
+                {
+                    errorObject = new { message = "Phone number must be 10 digits" };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(400, errorJson);
+                }
+
+                var response = client.PostAsJsonAsync<UserLoginDTO>($"{url_user}/Register", userDTOLogin).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadAsStringAsync();
+                    var responseData = JsonConvert.DeserializeObject<dynamic>(result);
+
+                    // Lấy token từ dữ liệu trả về
+                    string token = responseData?.token;
+
+                    // Lấy thông tin người dùng từ dữ liệu trả về
+                    User _user = responseData.user.ToObject<User>();
+
+                    if (token != null && _user != null)
+                    {
+                        var obj = new
+                        {
+                            status = 1,
+                            message = $"Register sucsses, welcome to our service",
+                            token
+                        };
+                        HttpContext.Session.SetString("User", JsonConvert.SerializeObject(_user));
+                        HttpContext.Session.SetString("Token", token);
+
+                        var json = JsonConvert.SerializeObject(obj);
+                        return StatusCode(200, json);
+                    }
+
+                }
+                //check 409
+                if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    errorObject = new { message = $"User already exists" };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(409, errorJson);
+                }
+
+                errorObject = new { message = $"Something went wrong" };
+                errorJson = JsonConvert.SerializeObject(response);
+                return StatusCode(500, errorJson);
             }
-            return View();
+            catch (System.Exception)
+            {
+
+                var errorObject = new { message = $"Something went wrong" };
+                var errorJson = JsonConvert.SerializeObject(errorObject);
+                return StatusCode(500, errorJson);
+            }
+
+        }
+
+        //logout
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Remove("User");
+            HttpContext.Session.Remove("Token");
+            return RedirectToAction("Login");
         }
 
 

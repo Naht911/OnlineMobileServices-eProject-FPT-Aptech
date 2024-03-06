@@ -32,20 +32,26 @@ namespace OnlineMobileServices_API.Controllers
         {
             try
             {
+                Object errorObject;
+                var errorJson = "";
                 // 1. Find user by mobile number
                 var user = await _context.Users.FirstOrDefaultAsync(x => x.MobileNumber == userDTOLogin.MobileNumber);
 
                 // 2. Check if user exists
                 if (user == null)
                 {
-                    return Unauthorized();
+                    errorObject = new { message = $"Incorrect phone number or password" };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(401, errorJson);
                 }
 
                 // 3. Validate password
                 string hashedPassword = _userService.HashPassword(userDTOLogin.Password);
                 if (!user.Password.Equals(hashedPassword))
                 {
-                    return Unauthorized();
+                    errorObject = new { message = $"Incorrect phone number or password" };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(401, errorJson);
                 }
 
 
@@ -58,32 +64,53 @@ namespace OnlineMobileServices_API.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e.Message); // Log the error
-                return StatusCode(500, "Internal server error"); // Improve error message for user
+                return StatusCode(500, "Something went wrong, please try again later");
             }
         }
 
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(User newUser)
+        public async Task<IActionResult> Register(UserLoginDTO newUser)
         {
             try
             {
+                var errorObject = new { message = "Something went wrong" };
+                var errorJson = JsonConvert.SerializeObject(errorObject);
+                //check 10 digit phone number
+                if (newUser.MobileNumber.Length != 10)
+                {
+                    errorObject = new { message = "Phone number must be 10 digits" };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(400, errorJson);
+                }
                 // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
                 var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.MobileNumber == newUser.MobileNumber);
                 if (existingUser != null)
                 {
-                    return Conflict(); // Trả về mã lỗi 409 Conflict nếu người dùng đã tồn tại
+                    // Trả về mã lỗi 400 Bad Request nếu người dùng đã tồn tại
+                    errorObject = new { message = "User already exists." };
+                    errorJson = JsonConvert.SerializeObject(errorObject);
+                    return StatusCode(409, errorJson);
                 }
 
                 // Hash mật khẩu trước khi lưu vào cơ sở dữ liệu
                 newUser.Password = _userService.HashPassword(newUser.Password);
+                //tạo user mới
+                User user = new User
+                {
+                    MobileNumber = newUser.MobileNumber,
+                    Password = newUser.Password,
+                    Role = "user",
+                    RegisterDate = DateTime.Now,
+                    Email = "user@user"
+                };
 
                 // Thêm người dùng mới vào cơ sở dữ liệu
-                _context.Users.Add(newUser);
+                _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
                 // Trả về mã thành công 201 Created và thông tin người dùng mới
-                return CreatedAtAction(nameof(GetUserById), new { id = newUser.UserID }, newUser);
+                return CreatedAtAction(nameof(Login), newUser);
             }
             catch (Exception)
             {

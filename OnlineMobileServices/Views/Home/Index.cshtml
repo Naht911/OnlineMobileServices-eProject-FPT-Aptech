@@ -1,5 +1,8 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@{
     ViewData["Title"] = "Home Page";
+    var User = HttpContextAccessor?.HttpContext?.Session.GetString("User");
 }
 <header class="header-2">
     <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png')" loading="lazy">

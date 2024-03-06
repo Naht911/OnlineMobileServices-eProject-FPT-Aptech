@@ -55,7 +55,7 @@
             $("#doLogin").submit(function (event) {
                 event.preventDefault(); // Prevent default form submission
 
-                 var loginData = {
+                var loginData = {
                     MobileNumber: $("#MobileNumber").val(),
                     Password: $("#Password").val()
                 };
@@ -66,7 +66,7 @@
                         url: '@Url.Action("Login", "Home")',
                         type: 'post',
                         dataType: 'json',
-                        @* contentType: 'application/json', *@
+        @* contentType: 'application/json', *@
                         data: formData,
                         beforeSend: function () {
                             console.log("beforeSend");
@@ -76,6 +76,8 @@
                             $('button[name="login"]').html('Sign in').removeAttr('disabled');
                             if (data.status == 1) {
                                 $("#doLogin").resetForm();
+                                //save token
+                                localStorage.setItem('token', data.token);
                                 Swal.fire({
                                     title: "Done !",
                                     text: data.message,
@@ -85,7 +87,7 @@
                                     confirmButtonText: 'OK'
                                 }).then((result) => {
                                     if (result.value) {
-                                        @* window.location.assign('/'); *@
+                                        window.location.assign('/');
                                     }
                                 });
                             } else {
@@ -103,7 +105,7 @@
                             $('button[name="login"]').html('Sign in').removeAttr('disabled');
 
                             var text_error = xhr.status + ' ' + xhr.statusText;
-                            var title_error = 'Failed !';
+                            var title_error = 'Login Failed !';
                             var error = JSON.parse(xhr.responseText);
                             if (error.errors) {
                                 text_error = '';
@@ -111,6 +113,8 @@
                                     text_error += value + '<br>';
                                 });
                             }
+
+                            text_error = error.message ?? text_error;
                             title_error = error.title ? error.title : title_error;
 
                             Swal.fire({
@@ -122,23 +126,23 @@
                                 confirmButtonText: 'OK'
                             });
                         }
-                    });
+                            });
 
-                } else {
-                    // Handle empty fields, e.g., display an error message to the user
-                    Swal.fire({
-                        title: "Error!",
-                        text: "Please enter your Mobile Number and Password.",
-                        type: "error",
-                        icon: "error",
-                        confirmButtonClass: 'btn-danger',
-                        confirmButtonText: 'OK'
-                    });
-                }
-
-
-
+        } else {
+            // Handle empty fields, e.g., display an error message to the user
+            Swal.fire({
+                title: "Error!",
+                text: "Please enter your Mobile Number and Password.",
+                type: "error",
+                icon: "error",
+                confirmButtonClass: 'btn-danger',
+                confirmButtonText: 'OK'
             });
-        });
+        }
+
+
+
+                    });
+                });
     </script>
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineMobileServices_API.Models;
 
@@ -11,9 +12,11 @@ using OnlineMobileServices_API.Models;
 namespace OnlineMobileServices_API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240306202619_updateUser")]
+    partial class updateUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -297,13 +300,20 @@ namespace OnlineMobileServices_API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
 
-                    b.Property<string>("FullName")
-                        .HasColumnType("varchar(50)");
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)");
 
                     b.Property<string>("MobileNumber")
                         .IsRequired()
@@ -317,6 +327,7 @@ namespace OnlineMobileServices_API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Role")
+                        .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.HasKey("UserID");

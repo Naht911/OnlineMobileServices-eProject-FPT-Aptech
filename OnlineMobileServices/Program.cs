@@ -13,15 +13,17 @@ namespace OnlineMobileServices_FE
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             // Add services to the container.
+            builder.Services.AddHttpContextAccessor(); // Add this line
             //Bật session
             builder.Services.AddDistributedMemoryCache();
+            
             builder.Services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
                 options.Cookie.HttpOnly = false;
                 options.Cookie.IsEssential = true;
             });
-
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

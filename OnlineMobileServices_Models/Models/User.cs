@@ -19,24 +19,17 @@ namespace OnlineMobileServices_Models.Models
         [Required]
         [Column(TypeName = "varchar(128)")]
         public string Password { get; set; }
-        //first name
-        [Required]
-        [Column(TypeName = "varchar(30)")]
-        public string FirstName { get; set; }
-        //last name
-        [Required]
-        [Column(TypeName = "varchar(30)")]
-        public string LastName { get; set; }
-        [Required]
+
+        [Column(TypeName = "varchar(50)")]
+        public string? FullName { get; set; }
+
         [Column(TypeName = "nvarchar(150)")]
-        public string Address { get; set; }
-        [Required]
+        public string? Address { get; set; }
+        
+        public string? Email { get; set; }
+
         [Column(TypeName = "varchar(20)")]
-        public string Email { get; set; }
-        //role default user
-        [Required]
-        [Column(TypeName = "varchar(20)")]
-        public string Role { get; set; }
+        public string? Role { get; set; }
         //register date
         [Required]
         public DateTime RegisterDate { get; set; }
