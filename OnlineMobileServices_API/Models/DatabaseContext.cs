@@ -40,6 +40,12 @@ namespace OnlineMobileServices_API.Models
                 .HasOne<Services>(s => s.Service)
                 .WithMany(g => g.ServiceHistories)
                 .HasForeignKey(s => s.ServiceID);
+                //WebsiteSettings.LastEditedBy -> User
+            modelBuilder.Entity<WebsiteSettings>()
+                .HasOne<User>(s => s.LastEditedBy)
+                .WithMany(g => g.WebsiteSettings)
+                .HasForeignKey(s => s.LastEditedByID);
+
 
         }
         public DbSet<User> Users { get; set; }
@@ -50,6 +56,7 @@ namespace OnlineMobileServices_API.Models
         public DbSet<SpecialRechargePackageHistory> SpecialRechargePackageHistories { get; set; }
         public DbSet<ServiceHistory> ServiceHistories { get; set; }
         public DbSet<Telco> Telcos { get; set; }
+        public DbSet<WebsiteSettings> WebsiteSettings { get; set; }
        
 
     }

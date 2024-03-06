@@ -25,7 +25,7 @@ namespace OnlineMobileServices_Models.Models
 
         [Column(TypeName = "nvarchar(150)")]
         public string? Address { get; set; }
-        
+
         public string? Email { get; set; }
 
         [Column(TypeName = "varchar(20)")]
@@ -36,6 +36,6 @@ namespace OnlineMobileServices_Models.Models
         public IEnumerable<RechargePackageHistory>? RechargePackageHistories { get; set; }
         public IEnumerable<SpecialRechargePackageHistory>? SpecialRechargePackageHistories { get; set; }
         public IEnumerable<ServiceHistory>? ServiceHistories { get; set; }
-
+        public IEnumerable<WebsiteSettings>? WebsiteSettings { get; set; }
     }
 }

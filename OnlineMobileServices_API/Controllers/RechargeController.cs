@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineMobileServices_API.Models;
+using OnlineMobileServices_Models.DTOs;
 using OnlineMobileServices_Models.Models;
 using OnlineMobileServices_Models.Services;
 namespace OnlineMobileServices_API.Controllers
@@ -37,13 +38,25 @@ namespace OnlineMobileServices_API.Controllers
             return rechargePackage;
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRechargePackage(int id, RechargePackage rechargePackage)
+        public async Task<IActionResult> PutRechargePackage(int id, RechargePackageDTO _rechargePackage)
         {
-            if (id != rechargePackage.RechargePackageID)
+            RechargePackage rechargePackage = _context.RechargePackages?.Find(id);
+            if (rechargePackage == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+            rechargePackage.PackageName = _rechargePackage.PackageName ?? rechargePackage.PackageName;
+            rechargePackage.Price = _rechargePackage.Price;
+            rechargePackage.SubscriptionCode = _rechargePackage.SubscriptionCode ?? rechargePackage.SubscriptionCode;
+            rechargePackage.Description = _rechargePackage.Description;
+            rechargePackage.Validity = _rechargePackage.Validity;
+            rechargePackage.DataVolume = _rechargePackage.DataVolume;
+            rechargePackage.VoiceCall = _rechargePackage.VoiceCall;
+            rechargePackage.SMS = _rechargePackage.SMS;
+            rechargePackage.Image = _rechargePackage.Image;
+            rechargePackage.TelcoID = _rechargePackage.TelcoID;
             _context.Entry(rechargePackage).State = EntityState.Modified;
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -62,8 +75,22 @@ namespace OnlineMobileServices_API.Controllers
             return NoContent();
         }
         [HttpPost]
-        public async Task<ActionResult<RechargePackage>> PostRechargePackage(RechargePackage rechargePackage)
+        public async Task<ActionResult<RechargePackage>> PostRechargePackage(RechargePackageDTO _rechargePackage)
         {
+            RechargePackage rechargePackage = new RechargePackage
+            {
+                PackageName = _rechargePackage.PackageName,
+                Price = _rechargePackage.Price,
+                SubscriptionCode = _rechargePackage.SubscriptionCode,
+                Description = _rechargePackage.Description,
+                Validity = _rechargePackage.Validity,
+                DataVolume = _rechargePackage.DataVolume,
+                VoiceCall = _rechargePackage.VoiceCall,
+                SMS = _rechargePackage.SMS,
+                Image = _rechargePackage.Image,
+                TelcoID = _rechargePackage.TelcoID
+            };
+
             _context.RechargePackages.Add(rechargePackage);
             await _context.SaveChangesAsync();
             return CreatedAtAction("GetRechargePackage", new { id = rechargePackage.RechargePackageID }, rechargePackage);
@@ -116,7 +143,7 @@ namespace OnlineMobileServices_API.Controllers
             //check token is valid
             if (token != "")
             {
-                if (!_userService.IsTokenValid(token))
+                if (!_userService.ValidateToken(token))
                 {
                     return Unauthorized();
                 }
@@ -148,7 +175,7 @@ namespace OnlineMobileServices_API.Controllers
             int user_id = -1;
             if (token != "")
             {
-                if (!_userService.IsTokenValid(token))
+                if (!_userService.ValidateToken(token))
                 {
                     return Unauthorized();
                 }
@@ -173,7 +200,7 @@ namespace OnlineMobileServices_API.Controllers
         public async Task<IActionResult> DeleteRechargeHistory(int RechargePackageHistoryID, String token)
         {
             //check token is valid
-            if (!_userService.IsTokenValid(token))
+            if (!_userService.ValidateToken(token))
             {
                 return Unauthorized();
             }

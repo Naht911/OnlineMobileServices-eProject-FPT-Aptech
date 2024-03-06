@@ -43,6 +43,8 @@ namespace OnlineMobileServices_Models.Services
         //Verify token
         public ClaimsPrincipal GetPrincipalFromToken(string token)
         {
+            
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSecret);
 
@@ -82,8 +84,17 @@ namespace OnlineMobileServices_Models.Services
             var user_id = principal.FindFirst("User_id")?.Value ?? "-1";
             return int.Parse(user_id);
         }
+        //get role from token
+        public string GetRoleFromToken(string token)
+        {
+            var principal = GetPrincipalFromToken(token);
+            if (principal == null)
+                return null;
+            var role = principal.FindFirst("Role")?.Value;
+            return role;
+        }
 
-        public bool IsTokenValid(string token)
+        public bool ValidateToken(string token)
         {
             var principal = GetPrincipalFromToken(token);
 
@@ -126,5 +137,7 @@ namespace OnlineMobileServices_Models.Services
             StringComparer comparer = StringComparer.OrdinalIgnoreCase;
             return comparer.Compare(hashOfInput, hashedPassword) == 0;
         }
+
+
     }
 }
