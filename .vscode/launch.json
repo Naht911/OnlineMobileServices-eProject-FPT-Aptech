@@ -13,7 +13,7 @@
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
                 "launchBrowser": "false",
-                "API_URL": "https://localhost:8000",
+                "API_URL": "https://localhost:8001",
             },
             "preLaunchTask": "build API"
         },
