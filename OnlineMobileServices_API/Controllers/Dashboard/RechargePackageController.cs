@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OnlineMobileServices.Controllers;
 using OnlineMobileServices_API.Models;
+using OnlineMobileServices_Models.DTOs;
 using OnlineMobileServices_Models.Models;
 using OnlineMobileServices_Models.Services;
 
@@ -23,14 +25,46 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
         }
 
         //create a new recharge package
-        [HttpPost]
-        public async Task<ActionResult<RechargePackage>> PostRechargePackage(RechargePackage rechargePackage, String token)
+        [HttpPost("Create")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<RechargePackage>> PostRechargePackage(RechargePackageDTO _rechargePackage, String token)
         {
             if (!CheckRole(token))
             {
                 return Unauthorized();
             }
+            Telco? telco = _context.Telcos.Find(_rechargePackage.TelcoID);
+            if (telco == null)
+            {
+                return BadRequest("Invalid TelcoID");
+            }
+            //xử lý ảnh
+            string image = "";
+            if (_rechargePackage.Image != null)
+            {
+                image = FileController.UploadImage(_rechargePackage.Image);
+            }
+            else
+            {
+                image = "default.jpg";
+            }
+            //create a new recharge package
+            RechargePackage rechargePackage = new RechargePackage
+            {
+                PackageName = _rechargePackage.PackageName,
+                SubscriptionCode = _rechargePackage.SubscriptionCode,
+                Description = _rechargePackage.Description,
+                Price = _rechargePackage.Price,
+                Validity = _rechargePackage.Validity,
+                DataVolume = _rechargePackage.DataVolume,
+                VoiceCall = _rechargePackage.VoiceCall,
+                SMS = _rechargePackage.SMS,
+                Image = image,
+                TelcoID = _rechargePackage.TelcoID,
+                Telco = telco
+            };
 
+            //_context.Entry(rechargePackage).State = EntityState.Added;
 
             _context.RechargePackages.Add(rechargePackage);
             await _context.SaveChangesAsync();
@@ -40,21 +74,42 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
 
         //update a recharge package
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRechargePackage(int id, RechargePackage rechargePackage, String token)
+        public async Task<IActionResult> PutRechargePackage(int id, RechargePackageDTO _rechargePackage, String token)
         {
             if (!CheckRole(token))
             {
                 return Unauthorized();
             }
+            var rechargePackage = _context.RechargePackages.Find(id) ?? null;
 
-
-            if (id != rechargePackage.RechargePackageID)
+            if (rechargePackage == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+            //xử lý ảnh
+            string image = "";
+            if (_rechargePackage.Image != null)
+            {
+                image = FileController.UploadImage(_rechargePackage.Image);
+            }
+            else
+            {
+                image = "default.jpg";
+            }
+
+            rechargePackage.PackageName = _rechargePackage.PackageName;
+            rechargePackage.Description = _rechargePackage.Description;
+            rechargePackage.Price = _rechargePackage.Price;
+            rechargePackage.Validity = _rechargePackage.Validity;
+            rechargePackage.DataVolume = _rechargePackage.DataVolume;
+            rechargePackage.VoiceCall = _rechargePackage.VoiceCall;
+            rechargePackage.SMS = _rechargePackage.SMS;
+            rechargePackage.Image = image;
+            rechargePackage.TelcoID = _rechargePackage.TelcoID;
 
 
             _context.Entry(rechargePackage).State = EntityState.Modified;
+
             try
             {
                 await _context.SaveChangesAsync();

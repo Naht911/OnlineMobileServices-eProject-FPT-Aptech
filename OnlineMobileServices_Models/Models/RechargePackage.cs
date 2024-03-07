@@ -42,16 +42,15 @@ namespace OnlineMobileServices_Models.Models
         //image url
         [Required]
         [Column(TypeName = "varchar(256)")]
-        public string Image { get; set; }        
+        public string Image { get; set; }
         //telco id
         [Required]
         public int TelcoID { get; set; }
         //telco
         [ForeignKey("TelcoID")]
         public Telco Telco { get; set; }
-        //image file non-mapped (not in database)
-        [NotMapped]
-        public string ImageFile { get; set; }
+
+
         public IEnumerable<RechargePackageHistory>? RechargePackageHistories { get; set; }
     }
 }

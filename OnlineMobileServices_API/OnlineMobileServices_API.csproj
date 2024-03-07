@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OnlineMobileServices_Models\OnlineMobileServices_Models.csproj" />
+    <ProjectReference Include="..\OnlineMobileServices\OnlineMobileServices_FE.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -25,11 +25,8 @@ namespace OnlineMobileServices_Models.Models
         [Required]
         [Column(TypeName = "varchar(256)")]
         public string Logo { get; set; }
-        
 
-        //image file non-mapped (not in database)
-        [NotMapped]
-        public string ImageFile { get; set; }
+
 
 
 

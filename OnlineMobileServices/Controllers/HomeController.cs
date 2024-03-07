@@ -8,6 +8,7 @@ using System.Text;
 
 namespace OnlineMobileServices_FE.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class HomeController : Controller
     {
 
@@ -21,12 +22,12 @@ namespace OnlineMobileServices_FE.Controllers
         {
             _logger = logger;
         }
-
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
-
+        [HttpGet("Privacy")]
         public IActionResult Privacy()
         {
             return View();
@@ -38,7 +39,7 @@ namespace OnlineMobileServices_FE.Controllers
             Console.WriteLine("Error");
             return View(new Models.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-        [HttpGet]
+        [HttpGet("Login")]
         public IActionResult Login()
         {
             //check have session or not
@@ -55,7 +56,7 @@ namespace OnlineMobileServices_FE.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login(UserLoginDTO userDTOLogin)
         {
             try
@@ -140,13 +141,13 @@ namespace OnlineMobileServices_FE.Controllers
 
         }
 
-        [HttpGet]
+        [HttpGet("Register")]
         public IActionResult Register()
         {
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("Register")]
         public async Task<IActionResult> Register(UserLoginDTO userDTOLogin)
         {
             try
@@ -227,6 +228,7 @@ namespace OnlineMobileServices_FE.Controllers
         }
 
         //logout
+        [HttpGet("Logout")]
         public IActionResult Logout()
         {
             HttpContext.Session.Remove("User");

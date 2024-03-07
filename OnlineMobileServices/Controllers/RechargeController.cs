@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace OnlineMobileServices.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("[controller]")]
     public class RechargeController : Controller
     {
@@ -17,7 +18,7 @@ namespace OnlineMobileServices.Controllers
         {
             _logger = logger;
         }
-
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
