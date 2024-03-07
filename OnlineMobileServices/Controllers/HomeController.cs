@@ -25,6 +25,8 @@ namespace OnlineMobileServices_FE.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+            var Telco = client.GetFromJsonAsync<IEnumerable<Telco>>($"{url}Telco").Result;
+            ViewBag.Telco = Telco;
             return View();
         }
         [HttpGet("Privacy")]

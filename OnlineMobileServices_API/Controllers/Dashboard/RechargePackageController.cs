@@ -39,19 +39,23 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
                 return BadRequest("Invalid TelcoID");
             }
             //xử lý ảnh
-            string image = "";
+            string image_path = "";
             if (_rechargePackage.Image != null)
             {
+                if (!FileController.CheckImageSize(_rechargePackage.Image, 100))
+                {
+                    return BadRequest("File size is too large");
+                }
                 //check extension
                 if (!FileController.CheckImageIsValid(_rechargePackage.Image))
                 {
-                    return BadRequest("Invalid image extension");
+                    return BadRequest("Image is not valid");
                 }
-                image = FileController.UploadImage(_rechargePackage.Image);
+                image_path = FileController.UploadImage(_rechargePackage.Image);
             }
             else
             {
-                image = "default.jpg";
+                return BadRequest("Image is required");
             }
             //create a new recharge package
             RechargePackage rechargePackage = new RechargePackage
@@ -64,7 +68,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
                 DataVolume = _rechargePackage.DataVolume,
                 VoiceCall = _rechargePackage.VoiceCall,
                 SMS = _rechargePackage.SMS,
-                Image = image,
+                Image = image_path,
                 TelcoID = _rechargePackage.TelcoID,
                 Telco = telco
             };

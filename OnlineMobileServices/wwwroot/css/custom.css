@@ -135,6 +135,13 @@ img[data-action=close] {
   color: #FFFFFF;
 }
 
+.card.shadow-lg.move-on-hover.min-height-160 {
+  display: flex;
+  align-items: center;  /* Căn chỉnh dọc */
+  justify-content: center; /* Căn chỉnh ngang */
+}
+
 .telco-logo {
-  max-height: 120px !important;
+    max-height: 120px;   /* Đảm bảo chiều cao tối đa */
+    object-fit: contain; /* Hình ảnh giữ tỉ lệ và nằm gọn trong khung */
 }

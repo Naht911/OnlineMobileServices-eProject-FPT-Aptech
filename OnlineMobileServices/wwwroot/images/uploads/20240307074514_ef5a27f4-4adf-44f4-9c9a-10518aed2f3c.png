@@ -1,0 +1,27 @@
+<fulfillmentToken fulfillmentType="buy" auth="user" xmlns="http://ns.adobe.com/adept">
+  <distributor>urn:uuid:5912a286-0752-4058-830e-0a95d23cb627</distributor>
+  <operatorURL>http://www.e-shabda.com:8081/fulfillment</operatorURL>
+  <transaction>130528644</transaction>
+  <purchase>2023-08-23T17:28:55+05:30</purchase>
+  <expiration>2023-09-22T17:28:55+05:30</expiration>
+  <resourceItemInfo>
+    <resource>urn:uuid:c2c55e96-3652-4b07-a54c-28c8ba1a9c14</resource>
+    <resourceItem>0</resourceItem>
+    <metadata>
+      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">C#-Beginner to Advanced Programming_ACE_Intl </dc:title>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Aptech</dc:creator>
+      <dc:publisher xmlns:dc="http://purl.org/dc/elements/1.1/">Aptech</dc:publisher>
+      <dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">application/pdf</dc:format>
+    </metadata>
+    <licenseToken>
+      <resource>urn:uuid:c2c55e96-3652-4b07-a54c-28c8ba1a9c14</resource>
+      <permissions>
+        <display/>
+        <excerpt/>
+        <print/>
+        <play/>
+      </permissions>
+    </licenseToken>
+  </resourceItemInfo>
+  <hmac>6MGG0tKR4PYGmvhX46h0DMAQM0A=</hmac>
+</fulfillmentToken>
