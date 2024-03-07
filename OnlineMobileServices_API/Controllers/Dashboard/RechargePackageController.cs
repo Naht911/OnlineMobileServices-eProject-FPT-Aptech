@@ -12,6 +12,7 @@ using OnlineMobileServices_Models.Services;
 
 namespace OnlineMobileServices_API.Controllers.Dashboard
 {
+    [Area("Dashboard")]
     [ApiController]
     [Route("api/dashboard/[controller]")]
     public class RechargePackageController : ControllerBase
@@ -27,7 +28,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
         //create a new recharge package
         [HttpPost("Create")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<RechargePackage>> PostRechargePackage(RechargePackageDTO _rechargePackage, String token)
+        public async Task<ActionResult<RechargePackage>> PostRechargePackage(RechargePackageDTO _rechargePackage, string token)
         {
             if (!CheckRole(token))
             {
@@ -83,7 +84,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
 
         //update a recharge package
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRechargePackage(int id, RechargePackageDTO _rechargePackage, String token)
+        public async Task<IActionResult> PutRechargePackage(int id, RechargePackageDTO _rechargePackage, string token)
         {
             if (!CheckRole(token))
             {
@@ -139,7 +140,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
 
         //delete a recharge package
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRechargePackage(int id, String token)
+        public async Task<IActionResult> DeleteRechargePackage(int id, string token)
         {
             if (!CheckRole(token))
             {
@@ -178,7 +179,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
         }
         //create a new special recharge package
         [HttpPost("special")]
-        public async Task<ActionResult<RechargePackage>> PostSpecialRechargePackage(RechargePackage rechargePackage, String token)
+        public async Task<ActionResult<RechargePackage>> PostSpecialRechargePackage(RechargePackage rechargePackage, string token)
         {
             if (!CheckRole(token))
             {
@@ -195,7 +196,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
         //update a special recharge package
 
         [HttpPut("special/{id}")]
-        public async Task<IActionResult> PutSpecialRechargePackage(int id, RechargePackage rechargePackage, String token)
+        public async Task<IActionResult> PutSpecialRechargePackage(int id, RechargePackage rechargePackage, string token)
         {
             if (!CheckRole(token))
             {
@@ -228,7 +229,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
 
         //delete a special recharge package
         [HttpDelete("special/{id}")]
-        public async Task<IActionResult> DeleteSpecialRechargePackage(int id, String token)
+        public async Task<IActionResult> DeleteSpecialRechargePackage(int id, string token)
         {
             if (!CheckRole(token))
             {
@@ -259,10 +260,10 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
 
         //check role 
         [NonAction]
-        private bool CheckRole(String token)
+        private bool CheckRole(string token)
         {
             Console.WriteLine("Token_: " + token);
-            if (token == null | token == "" || String.IsNullOrEmpty(token))
+            if (token == null | token == "" || string.IsNullOrEmpty(token))
             {
                 return false;
             }

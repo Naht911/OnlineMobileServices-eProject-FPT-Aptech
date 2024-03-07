@@ -2,12 +2,13 @@ namespace OnlineMobileServices_FE
 {
     public class Program
     {
-        public static string ApiUrl = "http://localhost:8001/api";
+        public static string API_URL = "http://localhost:8001/api";
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var port = builder.Configuration.GetValue<int>("Port", 8000);
-            builder.WebHost.UseUrls("http://localhost:" + port);
+            var port = builder.Configuration.GetSection("APIPort").Value;
+            API_URL = $"http://localhost:{port}/api";
+            //Console.WriteLine(API_URL);
 
 
             // Add services to the container.

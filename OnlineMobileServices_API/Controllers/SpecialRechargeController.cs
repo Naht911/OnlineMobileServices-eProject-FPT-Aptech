@@ -13,7 +13,7 @@ namespace OnlineMobileServices_API.Controllers
     [Route("api/[controller]")]
     public class SpecialRechargeController : ControllerBase
     {
-         private readonly DatabaseContext _context;
+        private readonly DatabaseContext _context;
         public SpecialRechargeController(DatabaseContext context)
         {
             _context = context;
@@ -81,6 +81,6 @@ namespace OnlineMobileServices_API.Controllers
         {
             return _context.SpecialRechargePackages.Any(e => e.SpecialRechargePackageID == id);
         }
-        
+
     }
 }

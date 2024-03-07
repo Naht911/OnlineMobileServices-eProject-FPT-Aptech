@@ -32,7 +32,7 @@ namespace OnlineMobileServices_API.Controllers
         {
             try
             {
-                Object errorObject;
+                object errorObject;
                 var errorJson = "";
                 // 1. Find user by mobile number
                 var user = await _context.Users.FirstOrDefaultAsync(x => x.MobileNumber == userDTOLogin.MobileNumber);
@@ -59,7 +59,7 @@ namespace OnlineMobileServices_API.Controllers
 
 
                 // 5. Return user data and token
-                return Ok(new { user = user, token = tokenString });
+                return Ok(new { user, token = tokenString });
             }
             catch (Exception e)
             {
@@ -171,9 +171,9 @@ namespace OnlineMobileServices_API.Controllers
             }
         }
 
-        
 
-      
+
+
 
 
     }

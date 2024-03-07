@@ -10,6 +10,7 @@ using OnlineMobileServices_Models.Services;
 
 namespace OnlineMobileServices_API.Controllers
 {
+    [Area("Home")]
     [ApiController]
     [Route("api/[controller]")]
     public class RechargePackageController : ControllerBase
@@ -29,7 +30,7 @@ namespace OnlineMobileServices_API.Controllers
         }
 
         // RechargePackageExists
-       
-        
+
+
     }
 }

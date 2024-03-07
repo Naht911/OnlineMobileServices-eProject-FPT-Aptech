@@ -14,8 +14,8 @@ namespace OnlineMobileServices_FE.Controllers
 
         private readonly ILogger<HomeController> _logger;
         HttpClient client = new HttpClient();
-        private string url = $"{Program.ApiUrl}/";
-        private string url_user = $"{Program.ApiUrl}/User";
+        private string url = $"{Program.API_URL}/";
+        private string url_user = $"{Program.API_URL}/User";
 
 
         public HomeController(ILogger<HomeController> logger)

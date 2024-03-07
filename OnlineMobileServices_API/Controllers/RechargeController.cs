@@ -37,11 +37,11 @@ namespace OnlineMobileServices_API.Controllers
             }
             return rechargePackage;
         }
-        
+
         #region [ForUser]
         //get RechargePackageHistory
         [HttpGet("history")]
-        public async Task<ActionResult<IEnumerable<RechargePackageHistory>>> GetRechargePackageHistory(String token)
+        public async Task<ActionResult<IEnumerable<RechargePackageHistory>>> GetRechargePackageHistory(string token)
         {
             var user_id = _userService.GetUserIdFromToken(token);
             if (user_id == -1)
@@ -52,7 +52,7 @@ namespace OnlineMobileServices_API.Controllers
         }
         //get otp (input: phone number, token? | output: otp[fake:1234])
         [HttpPost("otp")]
-        public async Task<ActionResult<String>> GetOTP(String MobileNumber, int RechargePackageId, String token = "")
+        public async Task<ActionResult<string>> GetOTP(string MobileNumber, int RechargePackageId, string token = "")
         {
             //check phone number is valid (10 digits)
             if (MobileNumber.Length != 10)
@@ -78,7 +78,7 @@ namespace OnlineMobileServices_API.Controllers
         }
         //recharge (input: phone number, otp, RechargePackageId, token? | output: status, message)
         [HttpPost("recharge")]
-        public async Task<IActionResult> Recharge(String MobileNumber, String otp, int RechargePackageId, String token = "")
+        public async Task<IActionResult> Recharge(string MobileNumber, string otp, int RechargePackageId, string token = "")
         {
             //check phone number is valid (10 digits)
             if (MobileNumber.Length != 10)
@@ -122,7 +122,7 @@ namespace OnlineMobileServices_API.Controllers
         }
         //delete DeleteRecharge (input: RechargePackageHistoryID, token | output: status, message)
         [HttpDelete("history")]
-        public async Task<IActionResult> DeleteRechargeHistory(int RechargePackageHistoryID, String token)
+        public async Task<IActionResult> DeleteRechargeHistory(int RechargePackageHistoryID, string token)
         {
             //check token is valid
             if (!_userService.ValidateToken(token))
@@ -142,7 +142,7 @@ namespace OnlineMobileServices_API.Controllers
         }
         //delete DeleteRecharge belong on phone number (input: phone number, otp | output: status, message)
         [HttpDelete("history/phone")]
-        public async Task<IActionResult> DeleteRechargeHistoryPhone(String MobileNumber, String otp)
+        public async Task<IActionResult> DeleteRechargeHistoryPhone(string MobileNumber, string otp)
         {
             //check phone number is valid (10 digits)
             if (MobileNumber.Length != 10)

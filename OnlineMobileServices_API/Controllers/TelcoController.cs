@@ -40,7 +40,7 @@ namespace OnlineMobileServices_API.Controllers
             {
                 return BadRequest();
             }
-            _context.Entry(telco).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            _context.Entry(telco).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();
@@ -62,7 +62,7 @@ namespace OnlineMobileServices_API.Controllers
         {
             return _context.Telcos.Any(e => e.TelcoID == id);
         }
-        
-        
+
+
     }
 }
