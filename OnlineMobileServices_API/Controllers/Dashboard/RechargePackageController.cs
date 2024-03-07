@@ -42,6 +42,11 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             string image = "";
             if (_rechargePackage.Image != null)
             {
+                //check extension
+                if (!FileController.CheckImageIsValid(_rechargePackage.Image))
+                {
+                    return BadRequest("Invalid image extension");
+                }
                 image = FileController.UploadImage(_rechargePackage.Image);
             }
             else
