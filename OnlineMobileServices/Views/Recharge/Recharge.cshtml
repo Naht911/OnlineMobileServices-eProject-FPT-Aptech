@@ -214,7 +214,7 @@
                 var formData = $(this).serializeArray();
                 if (MobileNumber && Password) {
                     $.ajax({
-                        url: '@Url.Action("Login", "Home")',
+                        url: '@Program.API_URL/Recharge/otp',
                         type: 'post',
                         dataType: 'json',
 

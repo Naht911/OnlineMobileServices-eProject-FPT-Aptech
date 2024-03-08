@@ -33,8 +33,8 @@ namespace OnlineMobileServices_Models.Models
         //register date
         [Required]
         public DateTime RegisterDate { get; set; }
-        public IEnumerable<RechargePackageHistory>? RechargePackageHistories { get; set; }
-        public IEnumerable<SpecialRechargePackageHistory>? SpecialRechargePackageHistories { get; set; }
+        public IEnumerable<RechargeHistory>? RechargePackageHistories { get; set; }
+        public IEnumerable<SpecialRechargeHistory>? SpecialRechargePackageHistories { get; set; }
         public IEnumerable<ServiceHistory>? ServiceHistories { get; set; }
         public IEnumerable<WebsiteSettings>? WebsiteSettings { get; set; }
     }

@@ -53,6 +53,6 @@ namespace OnlineMobileServices_Models.Models
         //image file non-mapped (not in database)
         [NotMapped]
         public string ImageFile { get; set; }
-        public IEnumerable<SpecialRechargePackageHistory>? SpecialRechargePackageHistories { get; set; }
+        public IEnumerable<SpecialRechargeHistory>? SpecialRechargePackageHistories { get; set; }
     }
 }

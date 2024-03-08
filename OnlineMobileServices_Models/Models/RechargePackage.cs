@@ -51,6 +51,6 @@ namespace OnlineMobileServices_Models.Models
         public Telco Telco { get; set; }
 
 
-        public IEnumerable<RechargePackageHistory>? RechargePackageHistories { get; set; }
+        public IEnumerable<RechargeHistory>? RechargePackageHistories { get; set; }
     }
 }

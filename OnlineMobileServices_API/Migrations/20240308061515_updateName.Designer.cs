@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineMobileServices_API.Models;
 
@@ -11,9 +12,11 @@ using OnlineMobileServices_API.Models;
 namespace OnlineMobileServices_API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240308061515_updateName")]
+    partial class updateName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,7 +63,7 @@ namespace OnlineMobileServices_API.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("RechargeHistory", (string)null);
+                    b.ToTable("RechargePackageHistories");
                 });
 
             modelBuilder.Entity("OnlineMobileServices_Models.Models.RechargePackage", b =>
@@ -211,7 +214,7 @@ namespace OnlineMobileServices_API.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("SpecialRechargeHistory", (string)null);
+                    b.ToTable("SpecialRechargePackageHistories");
                 });
 
             modelBuilder.Entity("OnlineMobileServices_Models.Models.SpecialRechargePackage", b =>

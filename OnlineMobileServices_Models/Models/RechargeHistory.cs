@@ -7,31 +7,32 @@ using System.Threading.Tasks;
 
 namespace OnlineMobileServices_Models.Models
 {
-    public class SpecialRechargePackageHistory
+    public class RechargeHistory
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int SpecialRechargePackageHistoryID { get; set; }
+        public int HistoryID { get; set; }
         [Required]
         [Column(TypeName = "varchar(10)")]
         public string MobileNumber { get; set; }
-        [Required]
-        public int UserID { get; set; }
+        
+        public int? UserID { get; set; }
         [ForeignKey("UserID")]
-        public User User { get; set; }
+        public User? User { get; set; }
         [Required]
-        public int SpecialRechargePackageID { get; set; }
-        [ForeignKey("SpecialRechargePackageID")]
-        public SpecialRechargePackage SpecialRechargePackage { get; set; }
+        public int RechargePackageID { get; set; }
+        [ForeignKey("RechargePackageID")]
+        public RechargePackage? RechargePackage { get; set; }
         [Required]
         public DateTime RechargeDate { get; set; }
         [Required]
         public double Amount { get; set; }
         [Required]
         [Column(TypeName = "varchar(20)")]
-        public string PaymentMethod { get; set; }
+        public string? PaymentMethod { get; set; }
         [Required]
         [Column(TypeName = "varchar(20)")]
-        public string Status { get; set; }
+        public string? Status { get; set; }
+
     }
 }

@@ -28,14 +28,14 @@ namespace OnlineMobileServices_API.Controllers
         #region [ForUser]
         //get RechargePackageHistory
         [HttpGet("history")]
-        public async Task<ActionResult<IEnumerable<RechargePackageHistory>>> GetRechargePackageHistory(string token)
+        public async Task<ActionResult<IEnumerable<RechargeHistory>>> GetRechargePackageHistory(string token)
         {
             var user_id = _userService.GetUserIdFromToken(token);
             if (user_id == -1)
             {
                 return Unauthorized();
             }
-            return await _context.RechargePackageHistories.Where(x => x.UserID == user_id).ToListAsync();
+            return await _context.RechargeHistories.Where(x => x.UserID == user_id).ToListAsync();
         }
         //get otp (input: phone number, token? | output: otp[fake:1234])
         [HttpPost("otp")]
@@ -123,9 +123,9 @@ namespace OnlineMobileServices_API.Controllers
                 }
                 //add RechargePackageHistory
 
-                RechargePackageHistory rechargePackageHistory = new RechargePackageHistory
+                RechargeHistory rechargePackageHistory = new RechargeHistory
                 {
-                    UserID = user_id,
+                    UserID = user_id == -1 ? null : user_id,
                     MobileNumber = MobileNumber,
                     RechargePackageID = RechargePackageId,
                     RechargeDate = DateTime.Now,
@@ -133,24 +133,27 @@ namespace OnlineMobileServices_API.Controllers
                     Status = "Pending",
                     Amount = rechargePackage.Price
                 };
-
-                _context.RechargePackageHistories.Add(rechargePackageHistory);
+                _context.Entry(rechargePackageHistory).State = EntityState.Added;
+                _context.RechargeHistories.Add(rechargePackageHistory);
                 await _context.SaveChangesAsync();
                 rsObject = new
                 {
                     status = 1,
                     message = "Order created successfully. You will be redirected to the payment page",
-                    rechargePackageHistoryID = rechargePackageHistory.RechargePackageHistoryID
+                    rechargePackageHistoryID = rechargePackageHistory.HistoryID,
+                    amount = rechargePackage.Price,
+                    service = "Recharge"
                 };
                 rsJson = JsonConvert.SerializeObject(rsObject);
                 return Ok(rsJson);
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
                 rsObject = new
                 {
                     status = 0,
-                    message = "Something went wrong. Refresh the page and try again"
+                    message = "Something went wrong. Refresh the page and try again",
+                    error = e
                 };
                 rsJson = JsonConvert.SerializeObject(rsObject);
                 return StatusCode(500, rsJson);
@@ -166,13 +169,13 @@ namespace OnlineMobileServices_API.Controllers
                 return Unauthorized();
             }
             //check RechargePackageHistoryID is valid
-            var rechargePackageHistory = await _context.RechargePackageHistories.FindAsync(RechargePackageHistoryID);
+            var rechargePackageHistory = await _context.RechargeHistories.FindAsync(RechargePackageHistoryID);
             if (rechargePackageHistory == null)
             {
                 return BadRequest("Invalid RechargePackageHistoryID");
             }
             //delete DeleteRecharge
-            _context.RechargePackageHistories.Remove(rechargePackageHistory);
+            _context.RechargeHistories.Remove(rechargePackageHistory);
             await _context.SaveChangesAsync();
             return Ok("Delete success");
         }
@@ -191,10 +194,10 @@ namespace OnlineMobileServices_API.Controllers
                 return BadRequest("Invalid OTP");
             }
             //delete DeleteRecharge
-            var rechargePackageHistories = await _context.RechargePackageHistories.Where(x => x.MobileNumber == MobileNumber).ToListAsync();
+            var rechargePackageHistories = await _context.RechargeHistories.Where(x => x.MobileNumber == MobileNumber).ToListAsync();
             foreach (var rechargePackageHistory in rechargePackageHistories)
             {
-                _context.RechargePackageHistories.Remove(rechargePackageHistory);
+                _context.RechargeHistories.Remove(rechargePackageHistory);
             }
             await _context.SaveChangesAsync();
             return Ok("Delete success");
