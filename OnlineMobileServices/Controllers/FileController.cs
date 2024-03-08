@@ -30,6 +30,7 @@ namespace OnlineMobileServices.Controllers
             }
             return true;
         }
+        
 
 
         public static bool CheckImageIsValid(IFormFile image)
@@ -68,6 +69,25 @@ namespace OnlineMobileServices.Controllers
             return isImage;
         }
 
+        //check mp3 file
+        public static bool CheckMp3IsValid(IFormFile file)
+        {
+            if (file == null)
+            {
+                return false;
+            }
+            var allowedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                            { ".mp3", ".wav", ".wma", ".flac", ".aac", ".m4a", ".ogg", ".oga", ".opus", ".webm"};
+
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            if (!allowedExtensions.Contains(extension))
+            {
+                return false;
+            }
+           
+            return true;
+        }
+
 
         public static String UploadImage(IFormFile file)
         {
@@ -85,6 +105,25 @@ namespace OnlineMobileServices.Controllers
                 file.CopyTo(stream);
             }
             fileName = "/images/uploads/" + fileName;
+            return fileName;
+        }
+
+         public static String UploadMp3(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return String.Empty;
+            }
+
+            //   //rename file: date + hash file name + extension
+            var fileName = DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var path = Path.Combine("../OnlineMobileServices", "wwwroot/mp3s/uploads", fileName);
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                //Đổi file stream thành file
+                file.CopyTo(stream);
+            }
+            fileName = "/mp3s/uploads/" + fileName;
             return fileName;
         }
     }

@@ -5,41 +5,91 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OnlineMobileServices.Controllers;
 using OnlineMobileServices_API.Models;
 using OnlineMobileServices_Models.DTOs;
 using OnlineMobileServices_Models.Models;
 using OnlineMobileServices_Models.Services;
-namespace OnlineMobileServices_API.Controllers
+
+namespace OnlineMobileServices_API.Controllers.Dashboard
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RechargeController : ControllerBase
+    public class CallerTunesController : ControllerBase
     {
         private readonly DatabaseContext _context;
         private readonly UserService _userService;
-        public RechargeController(DatabaseContext context, UserService userService)
+        public CallerTunesController(DatabaseContext context, UserService userService)
         {
             _context = context;
             _userService = userService;
         }
 
-
-
-        #region [ForUser]
-        //get RechargePackageHistory
-        [HttpGet("history")]
-        public async Task<ActionResult<IEnumerable<RechargeHistory>>> GetRechargePackageHistory(string token)
+        [HttpPost("Create")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<CallerTunesPackage>> PostRechargePackage(CallerTunesPackageDTO _pkg, string token)
         {
-            var user_id = _userService.GetUserIdFromToken(token);
-            if (user_id == -1)
+            if (!CheckRole(token))
             {
                 return Unauthorized();
             }
-            return await _context.RechargeHistories.Where(x => x.UserID == user_id).ToListAsync();
+
+            //xử lý ảnh
+            string mp3_path = "";
+            if (_pkg.Mp3 != null)
+            {
+                if (!FileController.CheckImageSize(_pkg.Mp3, 500))
+                {
+                    return BadRequest("File size is too large");
+                }
+                //check extension
+                if (!FileController.CheckMp3IsValid(_pkg.Mp3))
+                {
+                    return BadRequest("Mp3 file is not valid");
+                }
+                mp3_path = FileController.UploadMp3(_pkg.Mp3);
+            }
+            else
+            {
+                return BadRequest("Mp3's file is required");
+            }
+            //create a new recharge package
+            CallerTunesPackage newPkg = new CallerTunesPackage
+            {
+                PackageName = _pkg.PackageName,
+                Amount = _pkg.Amount,
+                Validity = _pkg.Validity,
+                Icon = mp3_path,
+                Status = "Active"
+
+            };
+
+            //_context.Entry(rechargePackage).State = EntityState.Added;
+
+            _context.CallerTunesPackages.Add(newPkg);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCallerTunesPackages", new { id = newPkg.PackageID }, newPkg);
         }
+
+
+        //get id
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CallerTunesPackage>> GetCallerTunesPackage(int id)
+        {
+            var callerTunesPackage = await _context.CallerTunesPackages.FindAsync(id);
+
+            if (callerTunesPackage == null)
+            {
+                return NotFound();
+            }
+
+            return callerTunesPackage;
+        }
+
         //get otp (input: phone number, token? | output: otp[fake:1234])
         [HttpPost("otp")]
-        public async Task<IActionResult> GetOTP(string MobileNumber, int RechargePackageId)
+        public async Task<IActionResult> GetOTP(string MobileNumber, int PackageID)
         {
             Object rsObject;
             var rsJson = "";
@@ -51,10 +101,10 @@ namespace OnlineMobileServices_API.Controllers
                 return StatusCode(400, rsJson);
             }
             //check RechargePackageId is valid
-            var rechargePackage = await _context.RechargePackages.FindAsync(RechargePackageId);
+            var rechargePackage = await _context.CallerTunesPackages.FindAsync(PackageID);
             if (rechargePackage == null)
             {
-                rsObject = new { message = "Recharge Package not found or invalid" };
+                rsObject = new { message = "Song not found or invalid" };
                 rsJson = JsonConvert.SerializeObject(rsObject);
                 return StatusCode(400, rsJson);
             }
@@ -69,8 +119,8 @@ namespace OnlineMobileServices_API.Controllers
 
         }
         //recharge (input: phone number, otp, RechargePackageId, token? | output: status, message)
-        [HttpPost("recharge")]
-        public async Task<IActionResult> Recharge(string MobileNumber, string otp, int RechargePackageId, string token = "")
+        [HttpPost("buy")]
+        public async Task<IActionResult> Recharge(string MobileNumber, string otp, int PackageId, string token = "")
         {
             Object rsObject;
             var rsJson = "";
@@ -99,13 +149,13 @@ namespace OnlineMobileServices_API.Controllers
                     return StatusCode(400, rsJson);
                 }
                 //check RechargePackageId is valid
-                var rechargePackage = await _context.RechargePackages.FindAsync(RechargePackageId);
+                var rechargePackage = await _context.CallerTunesPackages.FindAsync(PackageId);
                 if (rechargePackage == null)
                 {
                     rsObject = new
                     {
                         status = 0,
-                        message = "Recharge Package not found or invalid"
+                        message = "Song not found or invalid"
                     };
                     rsJson = JsonConvert.SerializeObject(rsObject);
                     return StatusCode(400, rsJson);
@@ -122,26 +172,27 @@ namespace OnlineMobileServices_API.Controllers
                 }
                 //add RechargePackageHistory
 
-                RechargeHistory rechargePackageHistory = new RechargeHistory
+                CallerTunesHistory pkgHistory = new CallerTunesHistory
                 {
                     UserID = user_id == -1 ? null : user_id,
                     MobileNumber = MobileNumber,
-                    PackageID = RechargePackageId,
+                    PackageID = PackageId,
                     Date = DateTime.Now,
                     PaymentMethod = "Payal",
                     Status = "Pending",
-                    Amount = rechargePackage.Price
+                    Amount = rechargePackage.Amount,
+
                 };
-                _context.Entry(rechargePackageHistory).State = EntityState.Added;
-                _context.RechargeHistories.Add(rechargePackageHistory);
+                _context.Entry(pkgHistory).State = EntityState.Added;
+                _context.CallerTunesHistories.Add(pkgHistory);
                 await _context.SaveChangesAsync();
                 rsObject = new
                 {
                     status = 1,
                     message = "Order created successfully. You will be redirected to the payment page",
-                    rechargePackageHistoryID = rechargePackageHistory.HistoryID,
-                    amount = rechargePackage.Price,
-                    service = "Recharge"
+                    rechargePackageHistoryID = pkgHistory.HistoryID,
+                    amount = rechargePackage.Amount,
+                    service = "CallerTunes"
                 };
                 rsJson = JsonConvert.SerializeObject(rsObject);
                 return Ok(rsJson);
@@ -158,53 +209,80 @@ namespace OnlineMobileServices_API.Controllers
                 return StatusCode(500, rsJson);
             }
         }
-        //delete DeleteRecharge (input: RechargePackageHistoryID, token | output: status, message)
-        [HttpDelete("history")]
-        public async Task<IActionResult> DeleteRechargeHistory(int RechargePackageHistoryID, string token)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CallerTunesPackage>>> GetCallerTunesPackages()
         {
-            //check token is valid
+            return await _context.CallerTunesPackages.ToListAsync();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //check role 
+        [NonAction]
+        private bool CheckRole(string token)
+        {
+            Console.WriteLine("Token_: " + token);
+            if (token == null | token == "" || string.IsNullOrEmpty(token))
+            {
+                return false;
+            }
+
             if (!_userService.ValidateToken(token))
             {
-                return Unauthorized();
+                Console.WriteLine("Invalid token");
+                return false;
             }
-            //check RechargePackageHistoryID is valid
-            var rechargePackageHistory = await _context.RechargeHistories.FindAsync(RechargePackageHistoryID);
-            if (rechargePackageHistory == null)
+            //Get role from token
+            var uid = _userService.GetUserIdFromToken(token);
+            var role = _context.Users.Find(uid)?.Role ?? "User";
+            if (role != "Admin")
             {
-                return BadRequest("Invalid RechargePackageHistoryID");
+                Console.WriteLine("Role: " + role);
+                return false;
             }
-            //delete DeleteRecharge
-            _context.RechargeHistories.Remove(rechargePackageHistory);
-            await _context.SaveChangesAsync();
-            return Ok("Delete success");
+            return true;
         }
-        //delete DeleteRecharge belong on phone number (input: phone number, otp | output: status, message)
-        [HttpDelete("history/phone")]
-        public async Task<IActionResult> DeleteRechargeHistoryPhone(string MobileNumber, string otp)
-        {
-            //check phone number is valid (10 digits)
-            if (MobileNumber.Length != 10)
-            {
-                return BadRequest("Invalid phone number");
-            }
-            //check otp is valid
-            if (otp != "1234")
-            {
-                return BadRequest("Invalid OTP");
-            }
-            //delete DeleteRecharge
-            var rechargePackageHistories = await _context.RechargeHistories.Where(x => x.MobileNumber == MobileNumber).ToListAsync();
-            foreach (var rechargePackageHistory in rechargePackageHistories)
-            {
-                _context.RechargeHistories.Remove(rechargePackageHistory);
-            }
-            await _context.SaveChangesAsync();
-            return Ok("Delete success");
-        }
-
-
-
-
-        #endregion
     }
 }

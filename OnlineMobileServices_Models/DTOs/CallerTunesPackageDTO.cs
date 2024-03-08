@@ -11,11 +11,10 @@ namespace OnlineMobileServices_Models.DTOs
     {
 
         public string PackageName { get; set; }
-        public string SubscriptionCode { get; set; }
-        public string Description { get; set; }
-        public double Price { get; set; }
+
+        public double Amount { get; set; }
         public int Validity { get; set; }
-        public int SMS { get; set; }
+        public string Status { get; set; }
         [Required]
         [Display(Name = "File")]
         public IFormFile? Mp3 { get; set; }

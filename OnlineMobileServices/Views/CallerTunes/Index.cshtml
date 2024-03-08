@@ -1,0 +1,110 @@
+@using OnlineMobileServices_Models.DTOs
+@using OnlineMobileServices_Models.Models;
+@model IEnumerable<CallerTunesPackage>;
+@{
+    ViewData["Title"] = "Caller Tunes";
+}
+<header>
+    <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png');" loading="lazy">
+        <span class="mask bg-gradient-dark opacity-5"></span>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-7 d-flex justify-content-center text-md-start text-center flex-column mt-sm-0 mt-7">
+                    <h1 class="text-white">
+                        Caller Tunes
+                    </h1>
+                    <p class="lead pe-md-5 me-md-5 text-white opacity-8">
+                        Your favorite songs as your caller tunes.
+                    </p>
+                    @* <div class="buttons">
+                    <button type="button" class="btn bg-gradient-primary mt-4">Get Started</button>
+                    <button type="button" class="btn text-white shadow-none mt-4">Read more</button>
+                    </div> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="card card-body mx-3 mx-md-4 mt-n6 mb-1  bg-gray-200">
+    <section class="py-5">
+        <div class="container">
+
+            <div class="row justify-content-center">
+                <h4>
+                    <span class="text-dark">Recharge Packages</span>
+                </h4>
+                <p>
+                    Your mobile - Your packages - Your choice.
+                </p>
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Song Name</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Amount</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Validity</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Listen</th>
+                                        <th class="text-secondary opacity-7"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-xs">
+                                                            <a asp-action="CallerTunes" asp-controller="CallerTunes" asp-route-id="@item.PackageID">
+                                                                @item.PackageName
+                                                            </a>
+
+                                                        </h6>
+                                                        <p class="text-xs text-secondary mb-0">Mp3</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <p class="text-xs font-weight-bold mb-0">$@item.Amount</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p>
+                                                    <span class="badge badge-sm badge-success">@item.Validity</span>
+                                                </p>
+
+                                                <p class="text-xs text-secondary mb-0">Days</p>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">
+                                                    <audio controls>
+                                                        <source src="http://localhost:8000/mp3s/uploads/20240308205855_18fb0b89-655e-46d1-b00b-ccf0910fa1e9.mp3" type="audio/mpeg">
+                                                        Your browser does not support the audio element.
+                                                    </audio>
+                                                </span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <a asp-action="CallerTunes" asp-controller="CallerTunes" asp-route-id="@item.PackageID" class="text-secondary font-weight-bold text-xs">
+                                                    Rental
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+</div>
+@* url: '@Url.Action("Login", "Home")', *@
+@section Scripts {
+
+}
