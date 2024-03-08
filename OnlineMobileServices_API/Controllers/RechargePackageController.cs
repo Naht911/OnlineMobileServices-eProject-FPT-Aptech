@@ -51,6 +51,36 @@ namespace OnlineMobileServices_API.Controllers
             return rechargePackage;
         }
 
+        ///RechargePackage/Special
+        [HttpGet("Special")]
+        public async Task<ActionResult<IEnumerable<SpecialRechargePackage>>> GetSpecialRechargePackages()
+        {
+            var data = await _context.SpecialRechargePackages.Include(rp => rp.Telco).ToListAsync();
+            foreach (var item in data)
+            {
+                item.SpecialRechargePackageHistories = null;
+                item.Telco.RechargePackages = null;
+
+            }
+            return data;
+        }
+
+        //get RechargePackage/Special id
+        [HttpGet("Special/{id}")]
+        public async Task<ActionResult<SpecialRechargePackage>> GetSpecialRechargePackage(int id)
+        {
+            var specialRechargePackage = await _context.SpecialRechargePackages.Include(rp => rp.Telco).FirstOrDefaultAsync(rp => rp.SpecialRechargePackageID == id);
+
+            if (specialRechargePackage == null)
+            {
+                return NotFound();
+            }
+            specialRechargePackage.SpecialRechargePackageHistories = null;
+            specialRechargePackage.Telco.RechargePackages = null;
+            return specialRechargePackage;
+        }
+
+
 
 
     }

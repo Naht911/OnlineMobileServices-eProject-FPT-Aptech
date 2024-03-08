@@ -1,0 +1,288 @@
+@using OnlineMobileServices_Models.DTOs
+@using OnlineMobileServices_Models.Models;
+@using OnlineMobileServices_FE;
+@model SpecialRechargePackage;
+@{
+    ViewData["Title"] = Model.SpecialPackageName;
+}
+<header>
+    <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png');" loading="lazy">
+        <span class="mask bg-gradient-dark opacity-5"></span>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-7 d-flex justify-content-center text-md-start text-center flex-column mt-sm-0 mt-7">
+                    <h1 class="text-white">
+                        @Model.SpecialPackageName
+                    </h1>
+                    <p class="lead pe-md-5 me-md-5 text-white opacity-8">
+                        @Model.Description
+                    </p>
+                    @* <div class="buttons">
+                    <button type="button" class="btn bg-gradient-primary mt-4">Get Started</button>
+                    <button type="button" class="btn text-white shadow-none mt-4">Read more</button>
+                    </div> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<section class="card card-body mx-3 mx-md-4 mt-n6 mb-1  bg-gray-200 py-7">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="card overflow-hidden">
+                    <div class="row">
+                        <div class="col-lg-7">
+
+                            <div class="card-header px-4 py-sm-5 py-3">
+                                <h2>Say Hi!</h2>
+                                <p class="lead"> Enter your phone number, hit the "Get OPT" button and we go!</p>
+                            </div>
+                            <div class="card-body pt-1">
+                                <form role="form" action="#" method="post" id="doSubmit">
+                                    <div class="row">
+                                        <div class="col-md-12 pe-2 mb-3">
+                                            <div class="input-group input-group-static">
+                                                <label>Phone number</label>
+                                                <input class="form-control" placeholder="Your phone number" type="text" id="MobileNumber">
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 pe-2 mb-3">
+                                            <div class="form-group">
+                                                <p>Get OTP</p>
+                                                <button type="button" class="btn btn-primary bg-gradient-primary mb-0" id="getOTP">
+                                                    Get OPT
+                                                </button>
+                                                <p class="text-sm mt-2">For test: 1234</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 pe-2 mb-3">
+                                            <div class="input-group input-group-static mb-0">
+                                                <label>Enter OTP</label>
+                                                <input class="form-control" placeholder="Your OTP" type="text" disabled required id="inputOTP">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 text-end ms-auto">
+                                            <button type="submit" class="btn btn-primary bg-gradient-primary mb-0" name="SubmitBtn">
+                                                Submit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                            </div>
+
+                        </div>
+                        <div class="col-lg-5 position-relative bg-cover px-0" style="background-image: url(&#39;../../assets/img/examples/blog4.jpg&#39;)">
+                            <div class="z-index-2 text-center d-flex h-100 w-100 d-flex m-auto justify-content-center">
+                                <div class="mask bg-gradient-primary opacity-9"></div>
+                                <div class="p-5 position-relative text-start my-auto">
+                                    <h3 class="text-white">@Model.SpecialPackageName</h3>
+                                    <p class="text-white opacity-8 mb-4"> @Model.Description</p>
+                                    <div class="d-flex p-2 text-white">
+                                        <i class="fa-solid fa-globe me-1"></i>
+                                        <span class="text-sm opacity-8 ps-3">@Model.DataVolume (GBs)</span>
+                                    </div>
+                                    <div class="d-flex p-2 text-white">
+                                        <i class="fa-solid fa-phone-volume me-1"></i>
+                                        <span class="text-sm opacity-8 ps-3">@Model.VoiceCall (Minutes)</span>
+                                    </div>
+                                    <div class="d-flex p-2 text-white">
+                                        <i class="fa-solid fa-message me-1"></i>
+                                        <span class="text-sm opacity-8 ps-3">@Model.SMS (SMS)</span>
+                                    </div>
+                                    <div class="mt-4">
+                                        <span class="rounded">
+                                            <img alt="Image placeholder" src="@Model.Telco.Logo" style="max-height: 50px; max-width: 300px;">
+                                        </span>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* contentType: 'application/json', *@
+@* url: '@Url.Action("Login", "Home")', *@
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            $("#getOTP").click(function () {
+                console.log("Get OTP");
+                $("#getOTP").html('<i class="fas fa-spinner fa-spin"></i> Progressing...').attr('disabled', 'disabled');
+                var MobileNumber = $("#MobileNumber").val(); // Lấy giá trị của trường MobileNumber
+                var RechargePackageId = @Model.SpecialRechargePackageID;
+                var data = {
+                    MobileNumber: MobileNumber, // Sử dụng giá trị vừa lấy được
+                    RechargePackageId: @Model.SpecialRechargePackageID,
+                };
+                var jsonData = JSON.stringify(data);
+                if (MobileNumber) {
+                    $.ajax({
+                        url: '@Program.API_URL/Recharge/otp?RechargePackageID=' + RechargePackageId + '&MobileNumber=' + MobileNumber,
+                        type: 'post',
+                        dataType: 'json',
+                        success: function (data) {
+                            $("#getOTP").html('Get OPT').removeAttr('disabled');
+                            if (data.status == 1) {
+                                Swal.fire({
+                                    title: "Done !",
+                                    text: data.message,
+                                    type: "success",
+                                    icon: "success",
+                                    confirmButtonClass: 'btn-success',
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.value) {
+                                        $("#inputOTP").val('1234').removeAttr('disabled');
+                                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+                                        //điển sẵn value = 1234
+
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Failed !",
+                                    text: data.message,
+                                    type: "error",
+                                    icon: "error",
+                                    confirmButtonClass: 'btn-danger',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            $("#getOTP").html('Get OPT').removeAttr('disabled');
+
+                            var text_error = xhr.status + ' ' + xhr.statusText;
+                            var title_error = 'Failed !';
+                            var error = JSON.parse(xhr.responseText);
+                            if (error.errors) {
+                                text_error = '';
+                                $.each(error.errors, function (key, value) {
+                                    text_error += value + '<br>';
+                                });
+                            }
+                            title_error = error.title ? error.title : title_error;
+                            text_error = error.message ?? text_error;
+                            Swal.fire({
+                                title: title_error,
+                                html: text_error,
+                                type: "error",
+                                icon: "error",
+                                confirmButtonClass: 'btn-danger',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+
+                } else {
+                    $("#getOTP").html('Get OPT').removeAttr('disabled');
+                    // Handle empty fields, e.g., display an error message to the user
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Please enter your Mobile Number.",
+                        type: "error",
+                        icon: "error",
+                        confirmButtonClass: 'btn-danger',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+
+            console.log("ready!");
+            // Xử lý Sign in
+
+            $("#doSubmit").submit(function (event) {
+                event.preventDefault(); // Prevent default form submission
+
+                var loginData = {
+                    MobileNumber: $("#MobileNumber").val(),
+                    otp: $("#inputOTP").val(),
+                    RechargePackageId: @Model.SpecialRechargePackageID,
+                };
+                var jsonData = JSON.stringify(loginData);
+                var formData = $(this).serializeArray();
+
+                $.ajax({
+                    url: '@Program.API_URL/Recharge/recharge?RechargePackageID=' + @Model.SpecialRechargePackageID + '&MobileNumber=' + $("#MobileNumber").val() + '&otp=' + $("#inputOTP").val(),
+                    type: 'post',
+                    dataType: 'json',
+                    beforeSend: function () {
+                        console.log("beforeSend");
+                        $('button[name="SubmitBtn"]').html('<i class="fas fa-spinner fa-spin"></i> Progressing...').attr('disabled', 'disabled');
+                    },
+                    success: function (data) {
+                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+                        console.log(data);
+                        if (data.status == 1) {
+                            $("#SubmitBtn").resetForm();
+                            Swal.fire({
+                                title: "Done !",
+                                text: data.message,
+                                type: "success",
+                                icon: "success",
+                                confirmButtonClass: 'btn-success',
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.value) {
+                                    //Redirect to payment page
+                                    window.location.href = '@Url.Action("PaymentWithPaypal", "Home")?BillID=' + data.rechargePackageHistoryID + '&Service=' + data.service;
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Failed !",
+                                text: data.message,
+                                type: "error",
+                                icon: "error",
+                                confirmButtonClass: 'btn-danger',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+
+                        var text_error = xhr.status + ' ' + xhr.statusText;
+                        var title_error = 'Failed !';
+                        var error = JSON.parse(xhr.responseText);
+                        if (error.errors) {
+                            text_error = '';
+                            $.each(error.errors, function (key, value) {
+                                text_error += value + '<br>';
+                            });
+                        }
+                        title_error = error.title ? error.title : title_error;
+                        text_error = error.message ?? text_error;
+
+                        Swal.fire({
+                            title: title_error,
+                            html: text_error,
+                            type: "error",
+                            icon: "error",
+                            confirmButtonClass: 'btn-danger',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+
+
+
+
+            });
+        });
+    </script>
+}

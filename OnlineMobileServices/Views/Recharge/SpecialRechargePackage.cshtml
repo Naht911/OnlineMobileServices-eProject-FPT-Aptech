@@ -1,0 +1,112 @@
+@using OnlineMobileServices_Models.DTOs
+@using OnlineMobileServices_Models.Models;
+@model IEnumerable<SpecialRechargePackage>;
+@{
+    ViewData["Title"] = "Recharge";
+}
+<header>
+    <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png');" loading="lazy">
+        <span class="mask bg-gradient-dark opacity-5"></span>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-7 d-flex justify-content-center text-md-start text-center flex-column mt-sm-0 mt-7">
+                    <h1 class="text-white">
+                        Multi-need, multi-utility
+                    </h1>
+                    <p class="lead pe-md-5 me-md-5 text-white opacity-8">
+                        Recharge your mobile phone with the best packages that suit your needs.
+                    </p>
+                    @* <div class="buttons">
+                        <button type="button" class="btn bg-gradient-primary mt-4">Get Started</button>
+                        <button type="button" class="btn text-white shadow-none mt-4">Read more</button>
+                    </div> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="card card-body mx-3 mx-md-4 mt-n6 mb-1  bg-gray-200">
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 me-2 text-start">
+                    <h4>
+                        <span class="text-dark">Special Recharge Package</span>
+                    </h4>
+                    <p>
+                        With awesome benefits, you can enjoy the best of both worlds. Get the best of data, voice call and SMS with the best price.
+                    </p>
+                </div>
+            </div>
+            <div class="row mt-lg-4 mt-2">
+
+
+                @foreach (var item in Model)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4 mt-3">
+                        <div class="card">
+                            <div class="card-body p-3 pt-2">
+                                <div class="d-flex">
+                                    <div class="avatar avatar-xl bg-gradient-dark border-radius-md p-2 mt-n4">
+                                        <img src="@item.Image">
+                                    </div>
+                                    <div class="ms-3 my-auto">
+                                        <h6>
+                                            <a asp-action="Recharge" asp-controller="Recharge" asp-route-id="@item.SpecialRechargePackageID" class="text-dark font-weight-bold">
+                                                @item.SpecialPackageName
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <div class="dropdown">
+                                            <span class="badge bg-gradient-primary">
+                                                $@item.Price
+                                                <span class="d-none d-lg-inline">/ @item.Validity d</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-sm mt-3"> @item.Description</p>
+                                <hr class="horizontal dark">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <div class="avatar-group">
+                                            <a href="#" class="avatar avatar-s rounded" data-toggle="tooltip" data-original-title="Jessica Rowland">
+                                                <img alt="Image placeholder" src="@item.Telco.Logo" class="">
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <h6 class="text-sm mb-0">
+                                            <i class="fa-solid fa-globe me-1"></i>
+                                            @item.DataVolume (GBs)
+                                        </h6>
+                                    </div>
+                                    <div class="col-3">
+                                        <h6 class="text-sm mb-0">
+                                            <i class="fa-solid fa-phone-volume me-1"></i>
+                                            @item.VoiceCall (Min)
+                                        </h6>
+                                    </div>
+                                    <div class="col-3">
+                                        <h6 class="text-sm mb-0">
+                                            <i class="fa-solid fa-message me-1"></i>
+                                            @item.SMS (SMS)
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </section>
+</div>
+
+</div>
+@* url: '@Url.Action("Login", "Home")', *@
+@section Scripts {
+    
+}
