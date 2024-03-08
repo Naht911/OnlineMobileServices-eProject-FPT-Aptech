@@ -77,7 +77,7 @@
                         url: '@Url.Action("Login", "Home")',
                         type: 'post',
                         dataType: 'json',
-        @* contentType: 'application/json', *@
+
                         data: formData,
                         beforeSend: function () {
                             console.log("beforeSend");
@@ -137,23 +137,23 @@
                                 confirmButtonText: 'OK'
                             });
                         }
-                                                                                    });
+                    });
 
-        } else {
-            // Handle empty fields, e.g., display an error message to the user
-            Swal.fire({
-                title: "Error!",
-                text: "Please enter your Mobile Number and Password.",
-                type: "error",
-                icon: "error",
-                confirmButtonClass: 'btn-danger',
-                confirmButtonText: 'OK'
+                } else {
+                    // Handle empty fields, e.g., display an error message to the user
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Please enter your Mobile Number and Password.",
+                        type: "error",
+                        icon: "error",
+                        confirmButtonClass: 'btn-danger',
+                        confirmButtonText: 'OK'
+                    });
+                }
+
+
+
             });
-        }
-
-
-
-                                                                            });
-                                                                        });
+        });
     </script>
 }

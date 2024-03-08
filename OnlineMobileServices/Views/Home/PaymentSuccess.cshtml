@@ -1,3 +1,94 @@
+@using OnlineMobileServices_Models.DTOs
+@using OnlineMobileServices_Models.Models;
+@Model? dynamic;
 @{
     ViewData["Title"] = "Payment Success";
+}
+<header>
+    <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png');" loading="lazy">
+        <span class="mask bg-gradient-dark opacity-5"></span>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-7 d-flex justify-content-center text-md-start text-center flex-column mt-sm-0 mt-7">
+                    <h1 class="text-white">
+                        Last successful payment
+                    </h1>
+                    @* <p class="lead pe-md-5 me-md-5 text-white opacity-8">
+                    Recharge your mobile phone with the best packages that suit your needs.
+                    </p> *@
+                    @* <div class="buttons">
+                    <button type="button" class="btn bg-gradient-primary mt-4">Get Started</button>
+                    <button type="button" class="btn text-white shadow-none mt-4">Read more</button>
+                    </div> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="card card-body mx-3 mx-md-4 mt-n6 mb-1  bg-gray-200">
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 me-2 text-start">
+                    <h4>
+                        <span class="text-dark">Recharge Packages</span>
+                    </h4>
+
+                </div>
+            </div>
+            @* show Invoice *@
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card card-body bg-white shadow border-0">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-dark">Invoice</h6>
+                                <p class="text-sm text-dark">Invoice ID: <span class="text-dark">INV-@Model?.historyID</span></p>
+                                <p class="text-sm text-dark">Date: <span class="text-dark">@Model?.date </span></p>
+                            </div>
+                            <div class="col-md-6 text-md-end text-start">
+                                <h6 class="text-dark">Payment Details</h6>
+                                <p class="text-sm text-dark">Payment ID: <span class="text-dark">@Model?.PaymentId</span></p>
+                                <p class="text-sm text-dark">Payment Date: <span class="text-dark">@Model?.date</span></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-dark"> Details</h6>
+                                <p class="text-sm text-dark">Phone: <span class="text-dark">@Model?.mobileNumber</span></p>
+                                <p class="text-sm text-dark">Mobile Number: <span class="text-dark">@Model?.mobileNumber</span></p>
+                                <p class="text-sm text-dark">Amount: <span class="text-dark">@Model?.amount</span></p>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-dark">Payment Status</h6>
+                                <p class="text-sm text-dark">Status: <span class="text-success">Success</span></p>
+                            </div>
+                            <div class="col-md-6 text-md-end text-start">
+                                <h6 class="text-dark">Payment Method</h6>
+                                <p class="text-sm text-dark">Method: <span class="text-dark">@Model?.paymentMethod</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @* download *@
+                <div class="col-md-4">
+                    <div class="card card-body bg-white shadow border-0">
+                        <h6 class="text-dark">Download Invoice</h6>
+                        <p class="text-sm text-dark">Download your invoice in PDF format.</p>
+                        <a href="@Url.Action("DownloadInvoice", "Home")" class="btn bg-gradient-primary mt-4">Download</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</div>
+
+</div>
+@* url: '@Url.Action("Login", "Home")', *@
+@section Scripts {
+
 }

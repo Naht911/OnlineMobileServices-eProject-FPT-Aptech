@@ -33,51 +33,51 @@
                 <div class="card overflow-hidden">
                     <div class="row">
                         <div class="col-lg-7">
-                            <form class="p-3" id="contact-form" method="post">
-                                <div class="card-header px-4 py-sm-5 py-3">
-                                    <h2>Say Hi!</h2>
-                                    <p class="lead"> Enter your phone number, hit the "Get OPT" button and we go!</p>
-                                </div>
-                                <div class="card-body pt-1">
-                                    <form action="">
-                                        <div class="row">
-                                            <div class="col-md-12 pe-2 mb-3">
-                                                <div class="input-group input-group-static">
-                                                    <label>Phone number</label>
-                                                    <input class="form-control" placeholder="Your phone number" type="text" id="MobileNumber">
 
-                                                </div>
-                                            </div>
+                            <div class="card-header px-4 py-sm-5 py-3">
+                                <h2>Say Hi!</h2>
+                                <p class="lead"> Enter your phone number, hit the "Get OPT" button and we go!</p>
+                            </div>
+                            <div class="card-body pt-1">
+                                <form role="form" action="#" method="post" id="doSubmit">
+                                    <div class="row">
+                                        <div class="col-md-12 pe-2 mb-3">
+                                            <div class="input-group input-group-static">
+                                                <label>Phone number</label>
+                                                <input class="form-control" placeholder="Your phone number" type="text" id="MobileNumber">
 
-                                            <div class="col-md-12 pe-2 mb-3">
-                                                <div class="form-group">
-                                                    <p>Get OTP</p>
-                                                    <button type="button" class="btn btn-primary bg-gradient-primary mb-0" id="getOTP">
-                                                        Get OPT
-                                                    </button>
-                                                    <p class="text-sm mt-2">For test: 1234</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-12 pe-2 mb-3">
-                                                <div class="input-group input-group-static mb-0">
-                                                    <label>Enter OTP</label>
-                                                    <input class="form-control" placeholder="Your OTP" type="text" disabled required>
-                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="row">
-                                            <div class="col-md-6 text-end ms-auto">
-                                                <button type="submit" class="btn btn-primary bg-gradient-primary mb-0">
-                                                    Submit
+                                        <div class="col-md-12 pe-2 mb-3">
+                                            <div class="form-group">
+                                                <p>Get OTP</p>
+                                                <button type="button" class="btn btn-primary bg-gradient-primary mb-0" id="getOTP">
+                                                    Get OPT
                                                 </button>
+                                                <p class="text-sm mt-2">For test: 1234</p>
                                             </div>
                                         </div>
-                                    </form>
 
-                                </div>
-                            </form>
+                                        <div class="col-md-12 pe-2 mb-3">
+                                            <div class="input-group input-group-static mb-0">
+                                                <label>Enter OTP</label>
+                                                <input class="form-control" placeholder="Your OTP" type="text" disabled required id="inputOTP">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 text-end ms-auto">
+                                            <button type="submit" class="btn btn-primary bg-gradient-primary mb-0" name="SubmitBtn">
+                                                Submit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                            </div>
+
                         </div>
                         <div class="col-lg-5 position-relative bg-cover px-0" style="background-image: url(&#39;../../assets/img/examples/blog4.jpg&#39;)">
                             <div class="z-index-2 text-center d-flex h-100 w-100 d-flex m-auto justify-content-center">
@@ -137,7 +137,6 @@
                         success: function (data) {
                             $("#getOTP").html('Get OPT').removeAttr('disabled');
                             if (data.status == 1) {
-                                $("#doLogin").resetForm();
                                 Swal.fire({
                                     title: "Done !",
                                     text: data.message,
@@ -147,6 +146,9 @@
                                     confirmButtonText: 'OK'
                                 }).then((result) => {
                                     if (result.value) {
+                                        $("#inputOTP").val('1234').removeAttr('disabled');
+                                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+                                        //điển sẵn value = 1234
 
                                     }
                                 });
@@ -187,7 +189,7 @@
                     });
 
                 } else {
-                     $("#getOTP").html('Get OPT').removeAttr('disabled');
+                    $("#getOTP").html('Get OPT').removeAttr('disabled');
                     // Handle empty fields, e.g., display an error message to the user
                     Swal.fire({
                         title: "Error!",
@@ -203,89 +205,80 @@
             console.log("ready!");
             // Xử lý Sign in
 
-            $("#doLogin").submit(function (event) {
+            $("#doSubmit").submit(function (event) {
                 event.preventDefault(); // Prevent default form submission
 
                 var loginData = {
                     MobileNumber: $("#MobileNumber").val(),
-                    Password: $("#Password").val()
+                    otp: $("#inputOTP").val(),
+                    RechargePackageId: @Model.RechargePackageID,
                 };
                 var jsonData = JSON.stringify(loginData);
                 var formData = $(this).serializeArray();
-                if (MobileNumber && Password) {
-                    $.ajax({
-                        url: '@Program.API_URL/Recharge/otp',
-                        type: 'post',
-                        dataType: 'json',
 
-                        data: formData,
-                        beforeSend: function () {
-                            console.log("beforeSend");
-                            $('button[name="login"]').html('<i class="fas fa-spinner fa-spin"></i> Progressing...').attr('disabled', 'disabled');
-                        },
-                        success: function (data) {
-                            $('button[name="login"]').html('Sign in').removeAttr('disabled');
-                            if (data.status == 1) {
-                                $("#doLogin").resetForm();
-                                Swal.fire({
-                                    title: "Done !",
-                                    text: data.message,
-                                    type: "success",
-                                    icon: "success",
-                                    confirmButtonClass: 'btn-success',
-                                    confirmButtonText: 'OK'
-                                }).then((result) => {
-                                    if (result.value) {
-
-                                    }
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: "Failed !",
-                                    text: data.message,
-                                    type: "error",
-                                    icon: "error",
-                                    confirmButtonClass: 'btn-danger',
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            $('button[name="login"]').html('Sign in').removeAttr('disabled');
-
-                            var text_error = xhr.status + ' ' + xhr.statusText;
-                            var title_error = 'Failed !';
-                            var error = JSON.parse(xhr.responseText);
-                            if (error.errors) {
-                                text_error = '';
-                                $.each(error.errors, function (key, value) {
-                                    text_error += value + '<br>';
-                                });
-                            }
-                            title_error = error.title ? error.title : title_error;
-
+                $.ajax({
+                    url: '@Program.API_URL/Recharge/recharge?RechargePackageID=' + @Model.RechargePackageID + '&MobileNumber=' + $("#MobileNumber").val() + '&otp=' + $("#inputOTP").val(),
+                    type: 'post',
+                    dataType: 'json',
+                    beforeSend: function () {
+                        console.log("beforeSend");
+                        $('button[name="SubmitBtn"]').html('<i class="fas fa-spinner fa-spin"></i> Progressing...').attr('disabled', 'disabled');
+                    },
+                    success: function (data) {
+                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+                        console.log(data);
+                        if (data.status == 1) {
+                            $("#SubmitBtn").resetForm();
                             Swal.fire({
-                                title: title_error,
-                                html: text_error,
+                                title: "Done !",
+                                text: data.message,
+                                type: "success",
+                                icon: "success",
+                                confirmButtonClass: 'btn-success',
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.value) {
+                                    //Redirect to payment page
+                                    window.location.href = '@Url.Action("PaymentWithPaypal", "Home")?BillID=' + data.rechargePackageHistoryID + '&Service=' + data.service;
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Failed !",
+                                text: data.message,
                                 type: "error",
                                 icon: "error",
                                 confirmButtonClass: 'btn-danger',
                                 confirmButtonText: 'OK'
                             });
                         }
-                    });
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
 
-                } else {
-                    // Handle empty fields, e.g., display an error message to the user
-                    Swal.fire({
-                        title: "Error!",
-                        text: "Please enter your Mobile Number and Password.",
-                        type: "error",
-                        icon: "error",
-                        confirmButtonClass: 'btn-danger',
-                        confirmButtonText: 'OK'
-                    });
-                }
+                        var text_error = xhr.status + ' ' + xhr.statusText;
+                        var title_error = 'Failed !';
+                        var error = JSON.parse(xhr.responseText);
+                        if (error.errors) {
+                            text_error = '';
+                            $.each(error.errors, function (key, value) {
+                                text_error += value + '<br>';
+                            });
+                        }
+                        title_error = error.title ? error.title : title_error;
+                        text_error = error.message ?? text_error;
+
+                        Swal.fire({
+                            title: title_error,
+                            html: text_error,
+                            type: "error",
+                            icon: "error",
+                            confirmButtonClass: 'btn-danger',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+
 
 
 
