@@ -25,14 +25,8 @@ namespace OnlineMobileServices_Models.Models
         [Required]
         [Column(TypeName = "varchar(256)")]
         public string Logo { get; set; }
-
-
-
-
-
-
-
-
-
+        
+        public IEnumerable<RechargePackage>? RechargePackages { get; set; }
+        public IEnumerable<SpecialRechargePackage>? SpecialRechargePackages { get; set; }
     }
 }

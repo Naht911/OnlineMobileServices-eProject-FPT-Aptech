@@ -5,7 +5,7 @@
 @{
 
     var User_json = HttpContextAccessor?.HttpContext?.Session.GetString("User");
-    var User = User_json != null ? Newtonsoft.Json.JsonConvert.DeserializeObject<User>(User_json) : null;
+    var user = User_json != null ? Newtonsoft.Json.JsonConvert.DeserializeObject<User>(User_json) : null;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -43,7 +43,7 @@
                             OMS
                         </a>
                         @* start: moblie login button *@
-                        @if (User != null)
+                        @if (user != null)
                         {
                             <a asp-action="logout" asp-controller="Home" class="btn btn-sm   mb-0 ms-auto d-lg-none d-block">Logout</a>
                         }
@@ -70,7 +70,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item mx-2">
-                                    <a href="/" role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" aria-expanded="false">
+                                    <a asp-action="Index" asp-controller="Recharge" role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" aria-expanded="false">
                                         <i class="fa-solid fa-bolt me-2"></i>
                                         Online Recharge
                                     </a>
@@ -78,13 +78,21 @@
                                 <li class="nav-item dropdown dropdown-hover mx-2">
                                     <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" id="dropdownMenuDocs" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-user-circle me-2"></i>
-                                        My Account
+
+                                        @if (user != null)
+                                        {
+                                            <span> Hi, @user.MobileNumber (@user.Role)</span>
+                                        }
+                                        else
+                                        {
+                                            <span> Account</span>
+                                        }
                                         <i class="fas fa-angle-down opacity-6 ms-1"></i>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation dropdown-md mt-0 mt-lg-3 p-3 border-radius-lg" aria-labelledby="dropdownMenuDocs">
                                         <div class="d-none d-lg-block">
                                             <ul class="list-group">
-                                                @if (User == null)
+                                                @if (user == null)
                                                 {
                                                     <li class="nav-item list-group-item border-0 p-0">
                                                         <a class="dropdown-item py-2 ps-3 border-radius-md" asp-action="login" asp-controller="Home">
@@ -112,6 +120,16 @@
                                                             </h6>
                                                         </a>
                                                     </li>
+                                                    @if (user.Role == "Admin")
+                                                    {
+                                                        <li class="nav-item list-group-item border-0 p-0">
+                                                            <a class="dropdown-item py-2 ps-3 border-radius-md" asp-action="Dashboard" asp-controller="Home">
+                                                                <h6 class="dropdown-header text-danger font-weight-bolder d-flex justify-content-cente align-items-center p-0">
+                                                                    <i class="fa-solid fa-cogs me-2"></i> Dashboard
+                                                                </h6>
+                                                            </a>
+                                                        </li>
+                                                    }
                                                     <li class="nav-item list-group-item border-0 p-0">
                                                         <a class="dropdown-item py-2 ps-3 border-radius-md" asp-action="logout" asp-controller="Home">
                                                             <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">
@@ -124,7 +142,7 @@
                                         </div>
                                         <div class="row d-lg-none">
                                             <div class="col-md-12 g-0">
-                                                @if (User == null)
+                                                @if (user == null)
                                                 {
                                                     <a class="dropdown-item py-2 ps-3 border-radius-md" asp-action="login" asp-controller="Home">
                                                         <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">
@@ -146,6 +164,14 @@
                                                         </h6>
 
                                                     </a>
+                                                    @if (user.Role == "Admin")
+                                                    {
+                                                        <a class="dropdown-item py-2 ps-3 border-radius-md" asp-action="Dashboard" asp-controller="Home">
+                                                            <h6 class="dropdown-header text-danger font-weight-bolder d-flex justify-content-cente align-items-center p-0">
+                                                                <i class="fa-solid fa-cogs me-2"></i> Dashboard
+                                                            </h6>
+                                                        </a>
+                                                    }
                                                     <a class="dropdown-item py-2 ps-3 border-radius-md" asp-action="logout" asp-controller="Home">
                                                         <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">
                                                             <i class="fa-solid fa-sign-out me-2"></i> Logout
@@ -232,7 +258,7 @@
                             </ul>
                             <ul class="navbar-nav d-lg-block d-none">
                                 <li class="nav-item">
-                                    @if (User != null)
+                                    @if (user != null)
                                     {
                                         <a asp-action="logout" asp-controller="Home" class="btn btn-sm  bg-gradient-primary  mb-0">Logout</a>
                                     }

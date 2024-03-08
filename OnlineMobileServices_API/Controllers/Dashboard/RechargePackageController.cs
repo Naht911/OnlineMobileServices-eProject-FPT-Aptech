@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineMobileServices.Controllers;
@@ -155,7 +156,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             }
             _context.RechargePackages.Remove(rechargePackage);
             await _context.SaveChangesAsync();
-            return NoContent();
+            return Ok();
         }
 
 

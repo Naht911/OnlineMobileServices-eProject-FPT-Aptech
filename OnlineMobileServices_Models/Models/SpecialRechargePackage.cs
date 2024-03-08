@@ -30,13 +30,13 @@ namespace OnlineMobileServices_Models.Models
         public double Price { get; set; }
         //validity (in days)
         [Required]
-        public int Validity { get; set; }
-        //data volume (in MB)
+        public double Validity { get; set; }
+        //data volume (in GBs)
         [Required]
-        public int DataVolume { get; set; }
+        public double DataVolume { get; set; }
         //voice call (in minutes)
         [Required]
-        public int VoiceCall { get; set; }
+        public double VoiceCall { get; set; }
         //sms (in count)
         [Required]
         public int SMS { get; set; }

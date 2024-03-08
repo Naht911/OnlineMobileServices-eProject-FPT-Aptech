@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using OnlineMobileServices_FE.Models;
-using System.Diagnostics;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
-using OnlineMobileServices_Models.Models;
+using OnlineMobileServices.Models;
 using OnlineMobileServices_Models.DTOs;
+using OnlineMobileServices_Models.Models;
+using PayPal.Api;
+using System.Diagnostics;
 using System.Text;
-
 namespace OnlineMobileServices_FE.Controllers
 {
     [ApiExplorerSettings(IgnoreApi = true)]
@@ -17,16 +18,34 @@ namespace OnlineMobileServices_FE.Controllers
         private string url = $"{Program.API_URL}/";
         private string url_user = $"{Program.API_URL}/User";
 
+        private IHttpContextAccessor httpContextAccessor;
 
-        public HomeController(ILogger<HomeController> logger)
+        IConfiguration _configuration;
+
+        private readonly IMemoryCache _memoryCache;
+
+
+        public HomeController(ILogger<HomeController> logger, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         {
             _logger = logger;
+            _memoryCache = memoryCache;
+            this.httpContextAccessor = httpContextAccessor;
+            _configuration = configuration;
+
         }
         [HttpGet]
         public IActionResult Index()
         {
-            var Telco = client.GetFromJsonAsync<IEnumerable<Telco>>($"{url}Telco").Result;
-            ViewBag.Telco = Telco;
+            if (!_memoryCache.TryGetValue("TelcoData", out IEnumerable<Telco>? telcoData))
+            {
+                telcoData = client.GetFromJsonAsync<IEnumerable<Telco>>($"{url}Telco").Result ?? new List<Telco>();
+                Console.WriteLine("Get data from API");
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(5)); // Adjust as needed
+
+                _memoryCache.Set("TelcoData", telcoData, cacheEntryOptions);
+            }
+            ViewBag.Telco = telcoData;
             return View();
         }
         [HttpGet("Privacy")]
@@ -237,6 +256,126 @@ namespace OnlineMobileServices_FE.Controllers
             HttpContext.Session.Remove("Token");
             return RedirectToAction("Login");
         }
+         [HttpGet("PaymentWithPaypal")]
+        public ActionResult PaymentWithPaypal(string Cancel = null, string blogId = "", string PayerID = "", string guid = "")
+        {
+            //getting the apiContext[^1^][1]
+            var ClientID = _configuration.GetSection("PayPal:Key").Value;
+            var ClientSecret = _configuration.GetSection("PayPal:Secret").Value;
+            var mode = _configuration.GetSection("PayPal:Mode").Value;
+            if(ClientID == null || ClientSecret == null || mode == null)
+            {
+                return Ok(new { status = 0, message = "Paypal is not configured" });
+            }
+            if(Cancel == "true")
+            {
+                return Ok(new { status = 0, message = "Payment cancelled" });
+            }
+            APIContext apiContext = PaypalConfiguration.GetAPIContext(ClientID, ClientSecret, mode);
+
+            try
+            {
+                string payerId = PayerID;
+                if (string.IsNullOrEmpty(payerId))
+                {
+                    string baseURI = this.Request.Scheme + "://" + this.Request.Host + "/PaymentWithPayPal?";
+                    var guidd = Convert.ToString((new Random()).Next(100000));
+                    guid = guidd;
+                    var createdPayment = this.CreatePayment(apiContext, baseURI + "guid=" + guid, blogId);
+                    var links = createdPayment.links.GetEnumerator();
+                    string paypalRedirectUrl = null;
+
+
+                    while (links.MoveNext())
+                    {
+                        Links lnk = links.Current;
+                        if (lnk.rel.ToLower().Trim().Equals("approval_url"))
+                        {
+                            paypalRedirectUrl = lnk.href;
+                        }
+                    }
+
+                    httpContextAccessor.HttpContext.Session.SetString("payment", createdPayment.id);
+                    return Redirect(paypalRedirectUrl);
+                }
+                else
+                {
+                    var paymentId = httpContextAccessor.HttpContext.Session.GetString("payment");
+                    var executedPayment = ExecutePayment(apiContext, payerId, paymentId as string);
+
+
+                    if (executedPayment.state.ToLower() != "approved")
+                    {
+                        return Ok(new { status = 0, message = "Payment failed" });
+                    }
+
+                    return Ok(new { status = 1, message = "Payment success" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { status = 0, message = ex.Message });
+            }
+        }
+        private PayPal.Api.Payment payment;
+        private Payment CreatePayment(APIContext apiContext, string redirectUrl, string blogId)
+        {
+            // Tạo danh sách item và thêm các đối tượng item vào
+            var itemList = new ItemList() { items = new List<Item>() };
+            // Thêm chi tiết Item như tên, tiền tệ, giá, v.v.
+            itemList.items.Add(new Item()
+            {
+                name = "Item Detail",
+                currency = "USD",
+                price = "1.00",
+                quantity = "1",
+                sku = "asd"
+            });
+
+            var payer = new Payer() { payment_method = "paypal" };
+            // Cấu hình Redirect Urls với đối tượng RedirectUrls
+            var redirUrls = new RedirectUrls()
+            {
+                cancel_url = redirectUrl + "&Cancel=true",
+                return_url = redirectUrl
+            };
+
+            // Thêm chi tiết Thuế, vận chuyển và Tổng phụ
+            var amount = new Amount()
+            {
+                currency = "USD",
+                total = "1.00" // Tổng cộng phải bằng tổng của thuế, vận chuyển và tổng phụ
+            };
+
+            var transactionList = new List<Transaction>();
+            // Thêm mô tả về giao dịch
+            transactionList.Add(new Transaction()
+            {
+                description = "Transaction description",
+                invoice_number = Guid.NewGuid().ToString(), // Tạo một Số Hóa Đơn
+                amount = amount,
+                item_list = itemList
+            });
+
+            this.payment = new Payment()
+            {
+                intent = "sale",
+                payer = payer,
+                transactions = transactionList,
+                redirect_urls = redirUrls
+            };
+
+            // Tạo một thanh toán sử dụng APIContext
+            return this.payment.Create(apiContext);
+        }
+
+        private Payment ExecutePayment(APIContext apiContext, string payerId, string paymentId)
+        {
+            var paymentExecution = new PaymentExecution() { payer_id = payerId };
+            this.payment = new Payment() { id = paymentId };
+            return this.payment.Execute(apiContext, paymentExecution);
+        }
+
 
 
 

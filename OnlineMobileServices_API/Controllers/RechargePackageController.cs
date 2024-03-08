@@ -26,10 +26,31 @@ namespace OnlineMobileServices_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RechargePackage>>> GetRechargePackages()
         {
-            return await _context.RechargePackages.ToListAsync();
+            //get data remove object cycle 
+            var data = await _context.RechargePackages.Include(rp => rp.Telco).ToListAsync();
+            foreach (var item in data)
+            {
+                item.RechargePackageHistories = null;
+                item.Telco.RechargePackages = null;
+
+            }
+            return data;
         }
 
-        // RechargePackageExists
+        [HttpGet("{id}")]
+        public async Task<ActionResult<RechargePackage>> GetRechargePackage(int id)
+        {
+            var rechargePackage = await _context.RechargePackages.Include(rp => rp.Telco).FirstOrDefaultAsync(rp => rp.RechargePackageID == id);
+
+            if (rechargePackage == null)
+            {
+                return NotFound();
+            }
+            rechargePackage.RechargePackageHistories = null;
+            rechargePackage.Telco.RechargePackages = null;
+            return rechargePackage;
+        }
+
 
 
     }

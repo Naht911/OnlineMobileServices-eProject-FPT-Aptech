@@ -14,25 +14,25 @@ namespace OnlineMobileServices_API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            
+
             // Add services to the container.
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(
                 options =>
                 {
-                    options.SwaggerDoc("Beta", new OpenApiInfo { Title = "Online Mobile Services API", Version = "Beta" });
+                    options.SwaggerDoc("eProject", new OpenApiInfo { Title = "OMS API | G1 - T1.2022.E1", Version = "eProject" });
                 }
             );
             builder.Services.AddDbContext<DatabaseContext>(
                 options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectDB"))
             );
-
+           
             // Add UserService registration here
             builder.Services.AddScoped<UserService>();
 
             var app = builder.Build();
-
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -40,7 +40,7 @@ namespace OnlineMobileServices_API
                 app.UseSwaggerUI(
                     options =>
                     {
-                        options.SwaggerEndpoint("/swagger/Beta/swagger.json", "Online Mobile Services API");
+                        options.SwaggerEndpoint("/swagger/eProject/swagger.json", "OMS API | G1 - T1.2022.E1");
                     }
                 );
             }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using OnlineMobileServices_API.Models;
 using OnlineMobileServices_Models.DTOs;
 using OnlineMobileServices_Models.Models;
@@ -22,21 +23,7 @@ namespace OnlineMobileServices_API.Controllers
             _userService = userService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<RechargePackage>>> GetRechargePackages()
-        {
-            return await _context.RechargePackages.ToListAsync();
-        }
-        [HttpGet("{id}")]
-        public async Task<ActionResult<RechargePackage>> GetRechargePackage(int id)
-        {
-            var rechargePackage = await _context.RechargePackages.FindAsync(id);
-            if (rechargePackage == null)
-            {
-                return NotFound();
-            }
-            return rechargePackage;
-        }
+
 
         #region [ForUser]
         //get RechargePackageHistory
@@ -52,73 +39,122 @@ namespace OnlineMobileServices_API.Controllers
         }
         //get otp (input: phone number, token? | output: otp[fake:1234])
         [HttpPost("otp")]
-        public async Task<ActionResult<string>> GetOTP(string MobileNumber, int RechargePackageId, string token = "")
+        public async Task<IActionResult> GetOTP(string MobileNumber, int RechargePackageId)
         {
+            Object rsObject;
+            var rsJson = "";
             //check phone number is valid (10 digits)
-            if (MobileNumber.Length != 10)
+            if (MobileNumber == null || MobileNumber.Length != 10)
             {
-                return BadRequest("Invalid phone number");
+                rsObject = new { message = "Phone number must be 10 digits" };
+                rsJson = JsonConvert.SerializeObject(rsObject);
+                return StatusCode(400, rsJson);
             }
             //check RechargePackageId is valid
             var rechargePackage = await _context.RechargePackages.FindAsync(RechargePackageId);
             if (rechargePackage == null)
             {
-                return BadRequest("Invalid RechargePackageId");
+                rsObject = new { message = "Recharge Package not found or invalid" };
+                rsJson = JsonConvert.SerializeObject(rsObject);
+                return StatusCode(400, rsJson);
             }
-            //check token is valid
-            if (token != "")
+            //get otp
+            rsObject = new
             {
-                if (!_userService.ValidateToken(token))
-                {
-                    return Unauthorized();
-                }
-            }
-            //return fake otp
-            return "1234";
+                status = 1,
+                message = "OTP sent to your phone number",
+            };
+            rsJson = JsonConvert.SerializeObject(rsObject);
+            return Ok(rsJson);
+
+
         }
         //recharge (input: phone number, otp, RechargePackageId, token? | output: status, message)
         [HttpPost("recharge")]
         public async Task<IActionResult> Recharge(string MobileNumber, string otp, int RechargePackageId, string token = "")
         {
-            //check phone number is valid (10 digits)
-            if (MobileNumber.Length != 10)
+            Object rsObject;
+            var rsJson = "";
+            try
             {
-                return BadRequest("Invalid phone number");
-            }
-            //check otp is valid
-            if (otp != "1234")
-            {
-                return BadRequest("Invalid OTP");
-            }
-            //check RechargePackageId is valid
-            var rechargePackage = await _context.RechargePackages.FindAsync(RechargePackageId);
-            if (rechargePackage == null)
-            {
-                return BadRequest("Invalid RechargePackageId");
-            }
-            //check token is valid
-            int user_id = -1;
-            if (token != "")
-            {
-                if (!_userService.ValidateToken(token))
+                //check phone number is valid (10 digits)
+                if (MobileNumber.Length != 10)
                 {
-                    return Unauthorized();
+                    rsObject = new
+                    {
+                        status = 0,
+                        message = "Phone number must be 10 digits"
+                    };
+                    rsJson = JsonConvert.SerializeObject(rsObject);
+                    return StatusCode(400, rsJson);
                 }
-                user_id = _userService.GetUserIdFromToken(token);
+                //check otp is valid
+                if (otp != "1234")
+                {
+                    rsObject = new
+                    {
+                        status = 0,
+                        message = "OTP is not correct"
+                    };
+                    rsJson = JsonConvert.SerializeObject(rsObject);
+                    return StatusCode(400, rsJson);
+                }
+                //check RechargePackageId is valid
+                var rechargePackage = await _context.RechargePackages.FindAsync(RechargePackageId);
+                if (rechargePackage == null)
+                {
+                    rsObject = new
+                    {
+                        status = 0,
+                        message = "Recharge Package not found or invalid"
+                    };
+                    rsJson = JsonConvert.SerializeObject(rsObject);
+                    return StatusCode(400, rsJson);
+                }
+                //check token is valid
+                int user_id = -1;
+                if (token != "")
+                {
+                    if (!_userService.ValidateToken(token))
+                    {
+                        return Unauthorized();
+                    }
+                    user_id = _userService.GetUserIdFromToken(token);
+                }
+                //add RechargePackageHistory
+
+                RechargePackageHistory rechargePackageHistory = new RechargePackageHistory
+                {
+                    UserID = user_id,
+                    MobileNumber = MobileNumber,
+                    RechargePackageID = RechargePackageId,
+                    RechargeDate = DateTime.Now,
+                    PaymentMethod = "Payal",
+                    Status = "Pending",
+                    Amount = rechargePackage.Price
+                };
+
+                _context.RechargePackageHistories.Add(rechargePackageHistory);
+                await _context.SaveChangesAsync();
+                rsObject = new
+                {
+                    status = 1,
+                    message = "Order created successfully. You will be redirected to the payment page",
+                    rechargePackageHistoryID = rechargePackageHistory.RechargePackageHistoryID
+                };
+                rsJson = JsonConvert.SerializeObject(rsObject);
+                return Ok(rsJson);
             }
-            //add RechargePackageHistory
-
-            RechargePackageHistory rechargePackageHistory = new RechargePackageHistory
+            catch (System.Exception)
             {
-                UserID = user_id,
-                MobileNumber = MobileNumber,
-                RechargePackageID = RechargePackageId,
-                RechargeDate = DateTime.Now
-            };
-
-            _context.RechargePackageHistories.Add(rechargePackageHistory);
-            await _context.SaveChangesAsync();
-            return Ok("Recharge success");
+                rsObject = new
+                {
+                    status = 0,
+                    message = "Something went wrong. Refresh the page and try again"
+                };
+                rsJson = JsonConvert.SerializeObject(rsObject);
+                return StatusCode(500, rsJson);
+            }
         }
         //delete DeleteRecharge (input: RechargePackageHistoryID, token | output: status, message)
         [HttpDelete("history")]
