@@ -37,5 +37,8 @@ namespace OnlineMobileServices_Models.Models
         public IEnumerable<SpecialRechargeHistory>? SpecialRechargePackageHistories { get; set; }
         public IEnumerable<ServiceHistory>? ServiceHistories { get; set; }
         public IEnumerable<WebsiteSettings>? WebsiteSettings { get; set; }
+        public IEnumerable<DoNotDisturbHistory>? DoNotDisturbHistories { get; set; }
+        public IEnumerable<CallerTunesHistory>? CallerTunesHistories { get; set; }
+        public IEnumerable<PostPaidHistory>? PostPaidHistories { get; set; }
     }
 }

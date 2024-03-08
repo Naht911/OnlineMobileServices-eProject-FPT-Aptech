@@ -127,8 +127,8 @@ namespace OnlineMobileServices_API.Controllers
                 {
                     UserID = user_id == -1 ? null : user_id,
                     MobileNumber = MobileNumber,
-                    RechargePackageID = RechargePackageId,
-                    RechargeDate = DateTime.Now,
+                    PackageID = RechargePackageId,
+                    Date = DateTime.Now,
                     PaymentMethod = "Payal",
                     Status = "Pending",
                     Amount = rechargePackage.Price

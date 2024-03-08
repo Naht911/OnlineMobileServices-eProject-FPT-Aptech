@@ -17,9 +17,9 @@ namespace OnlineMobileServices_API.Models
                 .HasForeignKey(s => s.UserID);
             //  RechargePackageHistory -> RechargePackage
             modelBuilder.Entity<RechargeHistory>()
-                .HasOne<RechargePackage>(s => s.RechargePackage)
+                .HasOne<RechargePackage>(s => s.OriginalPackage)
                 .WithMany(g => g.RechargePackageHistories)
-                .HasForeignKey(s => s.RechargePackageID);
+                .HasForeignKey(s => s.PackageID);
             //  SpecialRechargePackageHistory -> User
             modelBuilder.Entity<SpecialRechargeHistory>()
                 .HasOne<User>(s => s.User)
@@ -27,9 +27,9 @@ namespace OnlineMobileServices_API.Models
                 .HasForeignKey(s => s.UserID);
             //  SpecialRechargePackageHistory -> SpecialRechargePackage
             modelBuilder.Entity<SpecialRechargeHistory>()
-                .HasOne<SpecialRechargePackage>(s => s.SpecialRechargePackage)
+                .HasOne<SpecialRechargePackage>(s => s.OriginalPackage)
                 .WithMany(g => g.SpecialRechargePackageHistories)
-                .HasForeignKey(s => s.SpecialRechargePackageID);
+                .HasForeignKey(s => s.PackageID);
             //  ServiceHistory -> User
             modelBuilder.Entity<ServiceHistory>()
                 .HasOne<User>(s => s.User)
@@ -59,6 +59,27 @@ namespace OnlineMobileServices_API.Models
             modelBuilder.Entity<RechargeHistory>().ToTable("RechargeHistory");
             //Đổi lại tên bảng SpecialRechargePackageHistory -> SpecialRechargeHistory
             modelBuilder.Entity<SpecialRechargeHistory>().ToTable("SpecialRechargeHistory");
+            //DoNotDisturbHistory->User
+            modelBuilder.Entity<DoNotDisturbHistory>()
+                .HasOne<User>(s => s.User)
+                .WithMany(g => g.DoNotDisturbHistories)
+                .HasForeignKey(s => s.UserID);
+            //CallerTunesHistory->User
+            modelBuilder.Entity<CallerTunesHistory>()
+                .HasOne<User>(s => s.User)
+                .WithMany(g => g.CallerTunesHistories)
+                .HasForeignKey(s => s.UserID);
+            //CallerTunesHistory->CallerTunesPackage
+            modelBuilder.Entity<CallerTunesHistory>()
+                .HasOne<CallerTunesPackage>(s => s.CallerTunesPackage)
+                .WithMany(g => g.CallerTunesHistories)
+                .HasForeignKey(s => s.PackageID);
+                //PostPaidHistory->User
+            modelBuilder.Entity<PostPaidHistory>()
+                .HasOne<User>(s => s.User)
+                .WithMany(g => g.PostPaidHistories)
+                .HasForeignKey(s => s.UserID);
+
 
         }
         public DbSet<User> Users { get; set; }
@@ -70,6 +91,10 @@ namespace OnlineMobileServices_API.Models
         public DbSet<ServiceHistory> ServiceHistories { get; set; }
         public DbSet<Telco> Telcos { get; set; }
         public DbSet<WebsiteSettings> WebsiteSettings { get; set; }
+        public DbSet<DoNotDisturbHistory> DoNotDisturbHistories { get; set; }
+        public DbSet<CallerTunesPackage> CallerTunesPackages { get; set; }
+        public DbSet<CallerTunesHistory> CallerTunesHistories { get; set; }
+        public DbSet<PostPaidHistory> PostPaidHistories { get; set; }
 
 
     }

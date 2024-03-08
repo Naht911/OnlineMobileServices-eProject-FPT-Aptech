@@ -20,11 +20,11 @@ namespace OnlineMobileServices_Models.Models
         [ForeignKey("UserID")]
         public User User { get; set; }
         [Required]
-        public int SpecialRechargePackageID { get; set; }
-        [ForeignKey("SpecialRechargePackageID")]
-        public SpecialRechargePackage SpecialRechargePackage { get; set; }
+        public int PackageID { get; set; }
+        [ForeignKey("RechargePackageID")]
+        public SpecialRechargePackage? OriginalPackage { get; set; }
         [Required]
-        public DateTime RechargeDate { get; set; }
+        public DateTime Date { get; set; }
         [Required]
         public double Amount { get; set; }
         [Required]
