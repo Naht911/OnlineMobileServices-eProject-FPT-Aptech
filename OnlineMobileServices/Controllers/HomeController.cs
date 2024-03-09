@@ -274,7 +274,7 @@ namespace OnlineMobileServices_FE.Controllers
             }
             if (Cancel == "true")
             {
-                return View("PaymentCancel");
+                return View("PaymentFail");
             }
 
             APIContext apiContext = PaypalConfiguration.GetAPIContext(ClientID, ClientSecret, mode);
