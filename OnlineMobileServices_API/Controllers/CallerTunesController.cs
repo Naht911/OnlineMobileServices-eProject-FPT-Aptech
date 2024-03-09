@@ -25,52 +25,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             _userService = userService;
         }
 
-        [HttpPost("Create")]
-        [Consumes("multipart/form-data")]
-        public async Task<ActionResult<CallerTunesPackage>> PostRechargePackage(CallerTunesPackageDTO _pkg, string token)
-        {
-            if (!CheckRole(token))
-            {
-                return Unauthorized();
-            }
 
-            //xử lý ảnh
-            string mp3_path = "";
-            if (_pkg.Mp3 != null)
-            {
-                if (!FileController.CheckImageSize(_pkg.Mp3, 500))
-                {
-                    return BadRequest("File size is too large");
-                }
-                //check extension
-                if (!FileController.CheckMp3IsValid(_pkg.Mp3))
-                {
-                    return BadRequest("Mp3 file is not valid");
-                }
-                mp3_path = FileController.UploadMp3(_pkg.Mp3);
-            }
-            else
-            {
-                return BadRequest("Mp3's file is required");
-            }
-            //create a new recharge package
-            CallerTunesPackage newPkg = new CallerTunesPackage
-            {
-                PackageName = _pkg.PackageName,
-                Amount = _pkg.Amount,
-                Validity = _pkg.Validity,
-                Icon = mp3_path,
-                Status = "Active"
-
-            };
-
-            //_context.Entry(rechargePackage).State = EntityState.Added;
-
-            _context.CallerTunesPackages.Add(newPkg);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCallerTunesPackages", new { id = newPkg.PackageID }, newPkg);
-        }
 
 
         //get id
@@ -209,26 +164,6 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
                 return StatusCode(500, rsJson);
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CallerTunesPackage>>> GetCallerTunesPackages()
         {
@@ -244,7 +179,56 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
 
 
 
+        #region Admin
 
+        [HttpPost("Create")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<CallerTunesPackage>> PostRechargePackage(CallerTunesPackageDTO _pkg, string token)
+        {
+            if (!CheckRole(token))
+            {
+                return Unauthorized();
+            }
+
+            //xử lý ảnh
+            string mp3Path = "";
+            if (_pkg.Mp3 != null)
+            {
+                if (!FileController.CheckImageSize(_pkg.Mp3, 500))
+                {
+                    return BadRequest("File size is too large");
+                }
+                //check extension
+                if (!FileController.CheckMp3IsValid(_pkg.Mp3))
+                {
+                    return BadRequest("Mp3 file is not valid");
+                }
+                mp3Path = FileController.UploadMp3(_pkg.Mp3);
+            }
+            else
+            {
+                return BadRequest("Mp3's file is required");
+            }
+            //create a new recharge package
+            CallerTunesPackage newPkg = new CallerTunesPackage
+            {
+                PackageName = _pkg.PackageName,
+                Amount = _pkg.Amount,
+                Validity = _pkg.Validity,
+                Icon = mp3Path,
+                Status = "Active"
+
+            };
+
+            //_context.Entry(rechargePackage).State = EntityState.Added;
+
+            _context.CallerTunesPackages.Add(newPkg);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCallerTunesPackages", new { id = newPkg.PackageID }, newPkg);
+        }
+
+        #endregion
 
 
 
@@ -261,7 +245,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
 
         //check role 
         [NonAction]
-        private bool CheckRole(string token)
+        public bool CheckRole(string token)
         {
             Console.WriteLine("Token_: " + token);
             if (token == null | token == "" || string.IsNullOrEmpty(token))

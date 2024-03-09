@@ -467,6 +467,29 @@ namespace OnlineMobileServices_FE.Controllers
 
 
 
+        //o	About Us
+        [HttpGet("About")]
+        public IActionResult About()
+        {
+            return View();
+        }
+
+        //o	Contact Us
+        [HttpGet("Contact")]
+        public IActionResult Contact()
+        {
+            return View();
+        }
+
+        //o	Customer Care
+        [HttpGet("CustomerCare")]
+        public IActionResult CustomerCare()
+        {
+            return View();
+        }
+
+
+
 
 
 
