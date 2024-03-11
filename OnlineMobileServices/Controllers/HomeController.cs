@@ -45,7 +45,7 @@ namespace OnlineMobileServices_FE.Controllers
                 telcoData = _client.GetFromJsonAsync<IEnumerable<Telco>>($"{url}Telco").Result ?? new List<Telco>();
                 Console.WriteLine("Get data from API");
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(5)); // Adjust as needed
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(0.5)); // Adjust as needed
 
                 _memoryCache.Set("TelcoData", telcoData, cacheEntryOptions);
             }

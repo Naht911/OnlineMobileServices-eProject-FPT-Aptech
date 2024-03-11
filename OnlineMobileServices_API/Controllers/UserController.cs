@@ -109,13 +109,16 @@ namespace OnlineMobileServices_API.Controllers
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
-                // Trả về mã thành công 201 Created và thông tin người dùng mới
-                return CreatedAtAction(nameof(Login), newUser);
+                var tokenString = UserService.GenerateToken(user);
+
+
+                // 5. Return user data and token
+                return StatusCode(201, new { user, token = tokenString });
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // Trả về mã lỗi 500 Internal Server Error nếu có lỗi xảy ra trong quá trình xử lý
-                var errorObject = new { message = "Something went wrong" };
+                var errorObject = new { message = "Something went wrong", error = e.Message };
                 var errorJson = JsonConvert.SerializeObject(errorObject);
                 return StatusCode(500, errorJson);
             }

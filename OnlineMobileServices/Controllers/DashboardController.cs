@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OnlineMobileServices_FE;
 using OnlineMobileServices_Models.Models;
-
+using System.Management;
 namespace OnlineMobileServices.Controllers
 {
     [ApiExplorerSettings(IgnoreApi = true)]
@@ -19,6 +19,8 @@ namespace OnlineMobileServices.Controllers
 
         private readonly HttpClient _client = new HttpClient();
 
+        private readonly string DASHBOARD_API_URL = $"{Program.API_URL}/Dashboard";
+
         public DashboardController(ILogger<DashboardController> logger)
         {
             _logger = logger;
@@ -26,6 +28,8 @@ namespace OnlineMobileServices.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+           
+
             var userJson = HttpContext.Session.GetString("User");
             if (userJson == null)
             {
@@ -46,7 +50,7 @@ namespace OnlineMobileServices.Controllers
         [HttpGet("Recharge")]
         public async Task<IActionResult> Recharge()
         {
-            var Packages = await _client.GetAsync($"{Program.API_URL}/CallerTunes");
+            var Packages = await _client.GetAsync($"{DASHBOARD_API_URL}/CallerTunes");
             if (Packages.IsSuccessStatusCode)
             {
                 var packageList = await Packages.Content.ReadFromJsonAsync<List<CallerTunesPackage>>();
@@ -57,7 +61,7 @@ namespace OnlineMobileServices.Controllers
         [HttpGet("SpecialRecharge")]
         public async Task<IActionResult> SpecialRecharge()
         {
-            var Packages = await _client.GetAsync($"{Program.API_URL}/SpecialRecharge");
+            var Packages = await _client.GetAsync($"{DASHBOARD_API_URL}/SpecialRecharge");
             if (Packages.IsSuccessStatusCode)
             {
                 var packageList = await Packages.Content.ReadFromJsonAsync<List<SpecialRechargePackage>>();
@@ -69,7 +73,7 @@ namespace OnlineMobileServices.Controllers
         [HttpGet("RechargeHistory")]
         public async Task<IActionResult> RechargeHistory()
         {
-            var RechargeHistory = await _client.GetAsync($"{Program.API_URL}/RechargeHistory");
+            var RechargeHistory = await _client.GetAsync($"{DASHBOARD_API_URL}/RechargeHistory");
             if (RechargeHistory.IsSuccessStatusCode)
             {
                 var rechargeHistoryList = await RechargeHistory.Content.ReadFromJsonAsync<List<RechargeHistory>>();
@@ -81,7 +85,7 @@ namespace OnlineMobileServices.Controllers
         [HttpGet("SpecialRechargeHistory")]
         public async Task<IActionResult> SpecialRechargeHistory()
         {
-            var SpecialRechargeHistory = await _client.GetAsync($"{Program.API_URL}/SpecialRechargeHistory");
+            var SpecialRechargeHistory = await _client.GetAsync($"{DASHBOARD_API_URL}/SpecialRechargeHistory");
             if (SpecialRechargeHistory.IsSuccessStatusCode)
             {
                 var specialRechargeHistoryList = await SpecialRechargeHistory.Content.ReadFromJsonAsync<List<SpecialRechargeHistory>>();
@@ -90,7 +94,7 @@ namespace OnlineMobileServices.Controllers
             return View();
         }
 
-        
+
 
 
 

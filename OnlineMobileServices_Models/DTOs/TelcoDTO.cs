@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace OnlineMobileServices_Models.DTOs
 {
@@ -9,6 +11,8 @@ namespace OnlineMobileServices_Models.DTOs
     {
         public string TelcoName { get; set; }
         public string Description { get; set; }
-        public string Logo { get; set; }
+        [Required]
+        [Display(Name = "File")]
+        public IFormFile? Logo { get; set; }
     }
 }
