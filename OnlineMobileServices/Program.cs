@@ -49,5 +49,14 @@ namespace OnlineMobileServices_FE
 
             app.Run();
         }
+
+        public static string LitmitText(string text = "", int limit = 100)
+        {
+            if (text.Length > limit)
+            {
+                return string.Concat(text.AsSpan(0, limit), "...");
+            }
+            return text;
+        }
     }
 }

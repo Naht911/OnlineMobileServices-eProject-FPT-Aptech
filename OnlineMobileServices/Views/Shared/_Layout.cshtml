@@ -6,6 +6,9 @@
 
     var User_json = HttpContextAccessor?.HttpContext?.Session.GetString("User");
     var user = User_json != null ? Newtonsoft.Json.JsonConvert.DeserializeObject<User>(User_json) : null;
+    var _token = HttpContextAccessor?.HttpContext?.Session.GetString("Token");
+    ViewData["_token"] = _token;
+    Console.WriteLine(ViewData["Title"] + " | ViewData[\"_token\"]: " + ViewData["_token"]);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -329,11 +332,11 @@
                                     About Us
                                 </a>
                             </li>
-                            
+
                         </ul>
                     </div>
                 </div>
-               
+
                 <div class="col-md-4 col-sm-6 col-6 mb-4">
                     <div>
                         <h6 class="text-sm">Help &amp; Support</h6>
@@ -347,11 +350,11 @@
                                 <a class="nav-link" asp-action="CustomerCare" asp-controller="Home">
                                     Customer Care
                                 </a>
-                            </li>                           
+                            </li>
                         </ul>
                     </div>
                 </div>
-                
+
                 <div class="col-12">
                     <div class="text-center">
                         <p class="text-dark my-4 text-sm font-weight-normal">

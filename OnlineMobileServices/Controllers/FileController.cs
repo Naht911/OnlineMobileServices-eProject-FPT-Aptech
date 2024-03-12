@@ -30,7 +30,7 @@ namespace OnlineMobileServices.Controllers
             }
             return true;
         }
-        
+
 
 
         public static bool CheckImageIsValid(IFormFile image)
@@ -62,7 +62,7 @@ namespace OnlineMobileServices.Controllers
             var PNG = Encoding.UTF8.GetString(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
             var TIFF = Encoding.UTF8.GetString(new byte[] { 0x49, 0x49, 0x2A, 0x00 });
             var TIFF2 = Encoding.UTF8.GetString(new byte[] { 0x4D, 0x4D, 0x00, 0x2A });
-            var WEBP = Encoding.UTF8.GetString(new byte[] { 0x52, 0x49, 0x46, 0x46 });           
+            var WEBP = Encoding.UTF8.GetString(new byte[] { 0x52, 0x49, 0x46, 0x46 });
             var JEPG = Encoding.UTF8.GetString(new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 });
             bool isImage = imageSignature.StartsWith(BMP) || imageSignature.StartsWith(GIF87a) || imageSignature.StartsWith(GIF89a) || imageSignature.StartsWith(PNG) || imageSignature.StartsWith(TIFF) || imageSignature.StartsWith(TIFF2) || imageSignature.StartsWith(WEBP) || imageSignature.StartsWith(JEPG);
 
@@ -84,7 +84,7 @@ namespace OnlineMobileServices.Controllers
             {
                 return false;
             }
-           
+
             return true;
         }
 
@@ -108,7 +108,7 @@ namespace OnlineMobileServices.Controllers
             return fileName;
         }
 
-         public static String UploadMp3(IFormFile file)
+        public static String UploadMp3(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -125,6 +125,27 @@ namespace OnlineMobileServices.Controllers
             }
             fileName = "/mp3s/uploads/" + fileName;
             return fileName;
+        }
+
+        public static void DeleteFile(string old_image)
+        {
+            try
+            {
+                if (old_image == null || old_image == String.Empty)
+                {
+                    return;
+                }
+                var path = Path.Combine("../OnlineMobileServices", "wwwroot", old_image);
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+            catch (System.Exception)
+            {
+
+                return;
+            }
         }
     }
 }

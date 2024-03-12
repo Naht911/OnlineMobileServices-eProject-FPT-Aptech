@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using OnlineMobileServices.Controllers;
 using OnlineMobileServices_API.Models;
 using OnlineMobileServices_Models.DTOs;
@@ -35,7 +36,15 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             {
                 return Unauthorized();
             }
-            return await _context.RechargePackages.ToListAsync();
+            //get data remove object cycle 
+            var data = await _context.RechargePackages.Include(rp => rp.Telco).ToListAsync();
+            foreach (var item in data)
+            {
+                item.RechargePackageHistories = null;
+                item.Telco.RechargePackages = null;
+
+            }
+            return data;
         }
 
         //create a new recharge package
@@ -43,14 +52,72 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<RechargePackage>> PostRechargePackage(RechargePackageDTO _rechargePackage, string token)
         {
+            object result_0;
+            string RsJson_0 = String.Empty;
             if (!CheckRole(token))
             {
-                return Unauthorized();
+                result_0 = new
+                {
+                    status = 0,
+                    message = "Permission denie., Please login with admin account or try to login again",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(401, RsJson_0);
             }
             Telco? telco = _context.Telcos.Find(_rechargePackage.TelcoID);
             if (telco == null)
             {
-                return BadRequest("Invalid TelcoID");
+                result_0 = new
+                {
+                    status = 0,
+                    message = "TelcoID is not exists",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
+            //check Price not negative
+            if (_rechargePackage.Price < 0)
+            {
+                result_0 = new
+                {
+                    status = 0,
+                    message = "Price must be greater than 0",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
+            // Validity
+            if (_rechargePackage.Validity < 0)
+            {
+                result_0 = new
+                {
+                    status = 0,
+                    message = "Validity must be greater than 0",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
+            // DataVolume
+            if (_rechargePackage.DataVolume < 0)
+            {
+                result_0 = new
+                {
+                    status = 0,
+                    message = "DataVolume must be greater than 0",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
+            // VoiceCall
+            if (_rechargePackage.VoiceCall < 0)
+            {
+                result_0 = new
+                {
+                    status = 0,
+                    message = "VoiceCall must be greater than 0",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
             //xử lý ảnh
             string image_path = "";
@@ -58,18 +125,46 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             {
                 if (!FileController.CheckImageSize(_rechargePackage.Image, 100))
                 {
-                    return BadRequest("File size is too large");
+                    result_0 = new
+                    {
+                        status = 0,
+                        message = "File size is too large",
+                    };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
                 }
                 //check extension
                 if (!FileController.CheckImageIsValid(_rechargePackage.Image))
                 {
-                    return BadRequest("Image is not valid");
+                    result_0 = new
+                    {
+                        status = 0,
+                        message = "Image is not valid",
+                    };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
                 }
                 image_path = FileController.UploadImage(_rechargePackage.Image);
             }
             else
             {
-                return BadRequest("Image is required");
+                result_0 = new
+                {
+                    status = 0,
+                    message = "Image is required",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+            }
+            //check trùng SubscriptionCode và TelcoID
+            if (_context.RechargePackages.Any(x => x.SubscriptionCode == _rechargePackage.SubscriptionCode && x.TelcoID == _rechargePackage.TelcoID))
+            {
+                result_0 = new
+                {
+                    status = 0,
+                    message = "SubscriptionCode is already exists",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
             //create a new recharge package
             RechargePackage rechargePackage = new RechargePackage
@@ -91,45 +186,135 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
 
             _context.RechargePackages.Add(rechargePackage);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetRechargePackage", new { id = rechargePackage.RechargePackageID }, rechargePackage);
+            result_0 = new
+            {
+                status = 1,
+                message = "Create Recharge Package successfully",
+            };
+            RsJson_0 = JsonConvert.SerializeObject(result_0);
+            return Ok(RsJson_0);
         }
 
         //update a recharge package
         [HttpPut("RechargePackage/{id}")]
         public async Task<IActionResult> PutRechargePackage(int id, RechargePackageDTO _rechargePackage, string token)
         {
+            object result_0;
+            string RsJson_0 = String.Empty;
             if (!CheckRole(token))
             {
-                return Unauthorized();
+                result_0 = new
+                {
+                    status = 0,
+                    message = "Permission denie., Please login with admin account or try to login again",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(401, RsJson_0);
             }
             var rechargePackage = _context.RechargePackages.Find(id) ?? null;
-
             if (rechargePackage == null)
             {
-                return NotFound();
+                result_0 = new
+                {
+                    status = 0,
+                    message = "RechargePackageID is not exists",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
+            Telco? telco = _context.Telcos.Find(_rechargePackage.TelcoID);
+            if (telco == null)
+            {
+                result_0 = new
+                {
+                    status = 0,
+                    message = "TelcoID is not exists",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
+            //check Price not negative
+            if (_rechargePackage.Price < 0)
+            {
+                result_0 = new
+                {
+                    status = 0,
+                    message = "Price must be greater than 0",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
+            // Validity
+            if (_rechargePackage.Validity < 0)
+            {
+                result_0 = new
+                {
+                    status = 0,
+                    message = "Validity must be greater than 0",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
+            // DataVolume
+            if (_rechargePackage.DataVolume < 0)
+            {
+                result_0 = new
+                {
+                    status = 0,
+                    message = "DataVolume must be greater than 0",
+                };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
+            // VoiceCall
+            if (_rechargePackage.VoiceCall < 0)
+            {
+                result_0 = new { status = 0, message = "VoiceCall must be greater than 0" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
             //xử lý ảnh
-            string image = "";
+            string image_path = "";
+            string old_image = rechargePackage.Image;
             if (_rechargePackage.Image != null)
             {
-                image = FileController.UploadImage(_rechargePackage.Image);
+                if (!FileController.CheckImageSize(_rechargePackage.Image, 100))
+                {
+                    result_0 = new { status = 0, message = "File size is too large" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
+                }
+                //check extension
+                if (!FileController.CheckImageIsValid(_rechargePackage.Image))
+                {
+                    result_0 = new { status = 0, message = "Image is not valid" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
+                }
+                image_path = FileController.UploadImage(_rechargePackage.Image);
             }
             else
             {
-                image = "default.jpg";
+                image_path = old_image;
             }
-
+            //check trùng SubscriptionCode và TelcoID nhưng không trùng với chính nó
+            if (_context.RechargePackages.Any(x => x.SubscriptionCode == _rechargePackage.SubscriptionCode && x.TelcoID == _rechargePackage.TelcoID && x.RechargePackageID != id))
+            {
+                result_0 = new { status = 0, message = "SubscriptionCode is already exists" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
+            }
             rechargePackage.PackageName = _rechargePackage.PackageName;
+            rechargePackage.SubscriptionCode = _rechargePackage.SubscriptionCode;
             rechargePackage.Description = _rechargePackage.Description;
             rechargePackage.Price = _rechargePackage.Price;
             rechargePackage.Validity = _rechargePackage.Validity;
             rechargePackage.DataVolume = _rechargePackage.DataVolume;
             rechargePackage.VoiceCall = _rechargePackage.VoiceCall;
             rechargePackage.SMS = _rechargePackage.SMS;
-            rechargePackage.Image = image;
+            rechargePackage.Image = image_path;
             rechargePackage.TelcoID = _rechargePackage.TelcoID;
-
+            rechargePackage.Telco = telco;
 
             _context.Entry(rechargePackage).State = EntityState.Modified;
 
@@ -141,34 +326,52 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             {
                 if (!RechargePackageExists(id))
                 {
-                    return NotFound();
+                    result_0 = new { status = 0, message = "RechargePackageID is not exists" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
                 }
                 else
                 {
                     throw;
                 }
             }
-            return NoContent();
+            //kiểm tra nếu ảnh mới khác ảnh cũ thì xóa ảnh cũ
+            if (image_path != old_image)
+            {
+                FileController.DeleteFile(old_image);
+            }
+            result_0 = new { status = 1, message = "Update Recharge Package successfully" };
+            RsJson_0 = JsonConvert.SerializeObject(result_0);
+            return Ok(RsJson_0);
+
         }
 
         //delete a recharge package
         [HttpDelete("RechargePackage/{id}")]
         public async Task<IActionResult> DeleteRechargePackage(int id, string token)
         {
+            object result_0;
+            string RsJson_0 = String.Empty;
             if (!CheckRole(token))
             {
-                return Unauthorized();
+                result_0 = new { status = 0, message = "Permission denie., Please login with admin account or try to login again" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(401, RsJson_0);
             }
 
 
             var rechargePackage = await _context.RechargePackages.FindAsync(id);
             if (rechargePackage == null)
             {
-                return NotFound();
+                result_0 = new { status = 0, message = "RechargePackageID is not exists" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
             _context.RechargePackages.Remove(rechargePackage);
             await _context.SaveChangesAsync();
-            return Ok();
+            result_0 = new { status = 1, message = "Delete Recharge Package successfully" };
+            RsJson_0 = JsonConvert.SerializeObject(result_0);
+            return Ok(RsJson_0);
         }
 
 
@@ -188,6 +391,8 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             {
                 return NotFound();
             }
+            rechargePackage.RechargePackageHistories = null;
+            rechargePackage.Telco = null;
             return rechargePackage;
         }
 
@@ -695,7 +900,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             else
             {
                 return await _context.CallerTunesHistories.Where(x => x.Date.ToString().Contains(Date)).ToListAsync();
-            }            
+            }
         }
 
         //GetRechargeHistory

@@ -9,7 +9,7 @@ namespace OnlineMobileServices_Models.DTOs
 {
     public class RechargePackageDTO
     {
-
+        [Display(Name = "PackageName")]
         public string PackageName { get; set; }
         public string SubscriptionCode { get; set; }
         public string Description { get; set; }
@@ -18,8 +18,8 @@ namespace OnlineMobileServices_Models.DTOs
         public int DataVolume { get; set; }
         public int VoiceCall { get; set; }
         public int SMS { get; set; }
-        [Required]
-        [Display(Name = "File")]
+
+        [Display(Name = "Image")]
         public IFormFile? Image { get; set; }
         public int TelcoID { get; set; }
 

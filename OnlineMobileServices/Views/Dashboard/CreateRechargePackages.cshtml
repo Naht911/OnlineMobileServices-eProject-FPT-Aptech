@@ -1,0 +1,307 @@
+@using OnlineMobileServices_Models.DTOs
+@using OnlineMobileServices_Models.Models;
+
+
+@{
+    ViewData["Title"] = "Create New Recharge Packages";
+
+}
+<header class="header-2">
+    <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png')" loading="lazy">
+        <span class="mask bg-gradient-primary opacity-4"></span>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7 text-center mx-auto">
+                    <h1 class="text-white pt-3 mt-n5">
+                        Create New Recharge Packages
+                    </h1>
+                   
+                    <div class="buttons">
+                        <a type="button" class="btn bg-gradient-primary mt-4" asp-action="index" asp-controller="Dashboard">
+                            <i class="fa-solid fa-gauge me-2"></i></i>Back to Dashboard
+                        </a>
+                        @* create *@
+                        <a type="button" class="btn bg-gradient-info mt-4" asp-action="Recharge" asp-controller="Dashboard">
+                            <i class="fa-solid fa-arrow-left me-2"></i> Manage Recharge Packages
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<section class="card card-body mx-3 mx-md-4 mt-n6 mb-1  bg-gray-200 py-3">
+
+    <h3 class="text-primary text-center mt-2 mb-2">
+        Recharge Packages
+    </h3>
+    @* show ViewBag.Telco *@
+
+
+    <form role="form" action="#" method="post" id="doSubmit">
+        <div class="row">
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Package Name</label>
+                    <input class="form-control" placeholder="Package Name" type="text" id="PackageName">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Subscription Code</label>
+                    <input class="form-control" placeholder="Subscription Code" type="text" id="SubscriptionCode">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Description</label>
+                    <input class="form-control" placeholder="Description" type="text" id="Description">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Price</label>
+                    <input class="form-control" placeholder="Price" type="text" id="Price">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Validity</label>
+                    <input class="form-control" placeholder="Validity" type="text" id="Validity">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Data Volume</label>
+                    <input class="form-control" placeholder="Data Volume" type="text" id="DataVolume">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Voice Call</label>
+                    <input class="form-control" placeholder="Voice Call" type="text" id="VoiceCall">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>SMS</label>
+                    <input class="form-control" placeholder="SMS" type="text" id="SMS">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Image</label>
+                    <input class="form-control" placeholder="Image" type="file" id="Image" accept="image/*">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Telco ID</label>
+                    <select class="form-control" id="TelcoID">
+                        @if (ViewBag.Telcos != null)
+                        {
+                            <option value="">Select Telco</option>
+                            @foreach (var item in ViewBag.Telcos)
+                            {
+                                <option value="@item.TelcoID">@item.TelcoName</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="">No Telco Found</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12 pe-2 mb-3">
+                <button type="submit" class="btn bg-gradient-primary" name="SubmitBtn" id="SubmitBtn">
+                    <i class="fa-solid fa-check me-2"></i>Submit
+                </button>
+            </div>
+        </div>
+    </form>
+
+</section>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var _token = "@ViewData["_token"]" ?? "";
+
+            $("#doSubmit").submit(function (event) {
+                event.preventDefault(); // Prevent default form submission
+                if (_token == "") {
+                    Swal.fire({
+                        title: "Failed !",
+                        text: "Please login to continue.",
+                        type: "error",
+                        icon: "success",
+                        confirmButtonClass: 'btn-success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.value) {
+                            //Redirect to payment page
+                            window.location.href = '@Url.Action("Logout", "Home")';
+                        }
+                    });
+                    return;
+                }
+                var PackageName = $("#PackageName").val();
+                var SubscriptionCode = $("#SubscriptionCode").val();
+                var Description = $("#Description").val();
+                var Price = $("#Price").val();
+                var Validity = $("#Validity").val();
+                var DataVolume = $("#DataVolume").val();
+                var VoiceCall = $("#VoiceCall").val();
+                var SMS = $("#SMS").val();
+                var Image = $("#Image")[0].files[0];
+                var TelcoID = $("#TelcoID").val();
+                //check null từng field
+                var checkOK = true;
+                var TextErr = "";
+                if (PackageName == "") {
+                    TextErr += "Package Name is required <br>";
+                    checkOK = false;
+                }
+                if (SubscriptionCode == "") {
+                    TextErr += "Subscription Code is required <br>";
+                    checkOK = false;
+                }
+                if (Description == "") {
+                    TextErr += "Description is required <br>";
+                    checkOK = false;
+                }
+                if (Price == "") {
+                    TextErr += "Price is required <br>";
+                    checkOK = false;
+                }
+                if (Validity == "") {
+                    TextErr += "Validity is required <br>";
+                    checkOK = false;
+                }
+                if (DataVolume == "") {
+                    TextErr += "Data Volume is required <br>";
+                    checkOK = false;
+                }
+                if (VoiceCall == "") {
+                    TextErr += "Voice Call is required <br>";
+                    checkOK = false;
+                }
+                if (SMS == "") {
+                    TextErr += "SMS is required <br>";
+                    checkOK = false;
+                }
+                if (Image == "") {
+                    TextErr += "Image is required <br>";
+                    checkOK = false;
+                }
+                if (TelcoID == "") {
+                    TextErr += "Telco ID is required <br>";
+                    checkOK = false;
+                }
+                if (!checkOK) {
+                    Swal.fire({
+                        title: "Failed !",
+                        html: TextErr,
+                        type: "error",
+                        icon: "error",
+                        confirmButtonClass: 'btn-danger',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append('PackageName', PackageName);
+                formData.append('SubscriptionCode', SubscriptionCode);
+                formData.append('Description', Description);
+                formData.append('Price', Price);
+                formData.append('Validity', Validity);
+                formData.append('DataVolume', DataVolume);
+                formData.append('VoiceCall', VoiceCall);
+                formData.append('SMS', SMS);
+                formData.append("Image", Image); // Giả sử #Image là input file upload ảnh
+                formData.append('TelcoID', TelcoID);
+
+                $.ajax({
+                    url: '@Program.API_URL/Dashboard/RechargePackage/Create?token=' + _token,
+                    type: 'post',
+                    data: formData, // Sử dụng FormData thay vì jsonData
+                    processData: false, // Cho biết không xử lý dữ liệu thành query string
+                    contentType: false, // FormData sẽ tự thiết lập content type
+                    dataType: 'json',
+                    beforeSend: function () {
+                        console.log("beforeSend");
+                        $('button[name="SubmitBtn"]').html('<i class="fas fa-spinner fa-spin"></i> Progressing...').attr('disabled', 'disabled');
+                    },
+                    success: function (data) {
+                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+                        console.log(typeof data);
+                        if (data.status == 1) {
+                            $("#SubmitBtn").resetForm();
+                            Swal.fire({
+                                title: "Done !",
+                                text: data.message,
+                                type: "success",
+                                icon: "success",
+                                confirmButtonClass: 'btn-success',
+                                confirmButtonText: 'OK'
+                            });
+
+                        } else {
+                            Swal.fire({
+                                title: "Failed !",
+                                text: data.message,
+                                type: "error",
+                                icon: "error",
+                                confirmButtonClass: 'btn-danger',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+
+                        var text_error = xhr.status + ' ' + xhr.statusText;
+                        var title_error = 'Failed !';
+                        var error = JSON.parse(xhr.responseText);
+                        if (error.errors) {
+                            text_error = '';
+                            $.each(error.errors, function (key, value) {
+                                text_error += value + '<br>';
+                            });
+                        }
+                        title_error = error.title ? error.title : title_error;
+                        text_error = error.message ?? text_error;
+
+                        Swal.fire({
+                            title: title_error,
+                            html: text_error,
+                            type: "error",
+                            icon: "error",
+                            confirmButtonClass: 'btn-danger',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+
+
+
+
+            });
+        });
+    </script>
+}
