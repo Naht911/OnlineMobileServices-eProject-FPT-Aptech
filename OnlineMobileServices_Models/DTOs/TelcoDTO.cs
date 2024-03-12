@@ -11,7 +11,7 @@ namespace OnlineMobileServices_Models.DTOs
     {
         public string TelcoName { get; set; }
         public string Description { get; set; }
-        [Required]
+        
         [Display(Name = "File")]
         public IFormFile? Logo { get; set; }
     }

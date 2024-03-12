@@ -1,23 +1,23 @@
 @using OnlineMobileServices_Models.DTOs
 @using OnlineMobileServices_Models.Models;
 
-@model IEnumerable<PostPaidHistory>;
+@model IEnumerable<User>;
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     var _token = HttpContextAccessor?.HttpContext?.Session.GetString("Token");
     ViewData["_token"] = _token;
 }
 @{
-    ViewData["Title"] = "Post Paid History";
+    ViewData["Title"] = "List User";
 }
 <header class="header-2">
     <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png')" loading="lazy">
         <span class="mask bg-gradient-primary opacity-4"></span>
         <div class="container">
             <div class="row">
-                <div class="col-lg-7 mx-auto">
+                <div class="col-lg-7 text-center mx-auto">
                     <h1 class="text-white pt-3 mt-n5">
-                        Post Paid History
+                        List user
                     </h1>
 
                     <div class="buttons">
@@ -34,19 +34,17 @@
 </header>
 <section class="card card-body mx-3 mx-md-4 mt-n6 mb-1  bg-gray-200 py-3">
 
-    <h3 class="text-primary mt-2 mb-2">
-        List of Caller Tunes History
+    <h3 class="text-primary text-center mt-2 mb-2">
+        List User
     </h3>
     <div class="table-responsive">
         <table class="table align-items-center mb-0">
             <thead>
                 <tr>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">HistoryID</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Mobile Number</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Amount</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">PaymentMethod</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date Date</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">UID</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Mobile Number</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Role</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Register Date</th>
 
                 </tr>
             </thead>
@@ -58,58 +56,29 @@
                         <td>
                             <div class="d-flex px-2 py-1">
                                 <div class="d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0 text-xs">@item.HistoryID</h6>
+                                    <h6 class="mb-0 text-xs">@item.UserID</h6>
                                 </div>
                             </div>
                         </td>
                         <td>
                             <div class="d-flex px-2 py-1">
                                 <div class="d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0 text-xs">@item.PhoneNumber</h6>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex px-2 py-1">
-                                <div class="d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0 text-xs">@item.Amount</h6>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex px-2 py-1">
-                                <div class="d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0 text-xs">@item.PaymentMethod</h6>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex px-2 py-1">
-                                <div class="d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0 text-xs">
-                                        @* <span class="badge badge-primary">@item.Status</span> *@
-                                        @if (item.Status == "Success")
-                                        {
-                                            <span class="badge badge-success">@item.Status</span>
-                                        }
-                                        else if (item.Status == "Failed")
-                                        {
-                                            <span class="badge badge-danger">@item.Status</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-warning">@item.Status</span>
-                                        }
-                                    </h6>
+                                    <h6 class="mb-0 text-xs">@item.MobileNumber</h6>
                                 </div>
                             </div>
                         </td>
 
-
                         <td>
                             <div class="d-flex px-2 py-1">
                                 <div class="d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0 text-xs">@item.Date</h6>
+                                    <h6 class="mb-0 text-xs">@item.Role</h6>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex px-2 py-1">
+                                <div class="d-flex flex-column justify-content-center">
+                                    <h6 class="mb-0 text-xs">@item.RegisterDate</h6>
                                 </div>
                             </div>
                         </td>

@@ -25,49 +25,7 @@
 </header>
 
 <div class="card card-body mx-3 mx-md-4 mt-n6">
-    <section class="pt-3 pb-4" id="count-stats">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-9 z-index-2 border-radius-xl mx-auto py-3">
-                    <div class="row">
-                        <div class="col-md-4 position-relative">
-                            <div class="p-3 text-center">
-                                <h1 class="text-gradient text-primary"><span id="state1" countto="30">30</span>K+</h1>
-                                <h5 class="mt-3">
-                                    Customers
-                                </h5>
-                                <p class="text-sm font-weight-normal">
-                                    We are proud to have a large customer base, and we are always ready to serve you
-                                </p>
-                            </div>
-                            <hr class="vertical dark">
-                        </div>
-                        <div class="col-md-4 position-relative">
-                            <div class="p-3 text-center">
-                                <h1 class="text-gradient text-primary"> <span id="state2" countto="100">100</span>K+</h1>
-                                <h5 class="mt-3">
-                                    Service Usage
-                                </h5>
-                                <p class="text-sm font-weight-normal">
-                                    We have provided more than 100,000 uses of services to customers
-                                </p>
-                            </div>
-                            <hr class="vertical dark">
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 text-center">
-                                <h1 class="text-gradient text-primary"><span id="state3" countto="97">97</span>%</h1>
-                                <h5 class="mt-3">Satisfied</h5>
-                                <p class="text-sm font-weight-normal">
-                                    We are proud to have a satisfaction rate of 97%
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+
     <section class="my-5 py-5">
         <div class="container">
             <div class="row align-items-center">
@@ -89,7 +47,7 @@
                                     <p class="text-white opacity-8">
                                         Save your time and money with our services
                                     </p>
-                                    <a href=".//sections/page-sections/hero-sections.html" target="_blank" class="btn btn-white btn-sm w-50 mx-auto mt-3">
+                                    <a asp-action="login" asp-controller="Home" class="btn btn-white btn-sm w-50 mx-auto mt-3">
                                         Get Started
                                     </a>
                                 </div>
@@ -132,7 +90,7 @@
                                 At OMS we always put the customer first, and we are always ready to serve you.
                             </p>
                             <p class="pe-5">
-                                Have complain? <a href="/" class="text-primary">Just contact!</a>
+                                Have complain? <a asp-action="Contact" asp-controller="Home" class="text-primary">Just contact!</a>
                             </p>
                         </div>
                         <div class="col-md-6 mt-3">

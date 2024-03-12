@@ -501,9 +501,13 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<Telco>> PostTelco(TelcoDTO _telco, string token)
         {
+            object result_0;
+            string RsJson_0 = String.Empty;
             if (!CheckRole(token))
             {
-                return Unauthorized();
+                result_0 = new { status = 0, message = "Permission denie., Please login with admin account or try to login again" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(401, RsJson_0);
             }
             //xử lý ảnh
             string image_path = "";
@@ -511,18 +515,24 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             {
                 if (!FileController.CheckImageSize(_telco.Logo, 100))
                 {
-                    return BadRequest("File size is too large");
+                    result_0 = new { status = 0, message = "File size is too large" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
                 }
                 //check extension
                 if (!FileController.CheckImageIsValid(_telco.Logo))
                 {
-                    return BadRequest("Image is not valid");
+                    result_0 = new { status = 0, message = "Image is not valid" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
                 }
                 image_path = FileController.UploadImage(_telco.Logo);
             }
             else
             {
-                return BadRequest("Image is required");
+                result_0 = new { status = 0, message = "Logo is required" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
             //create a new telco
             Telco telco = new Telco
@@ -535,22 +545,58 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             _context.Telcos.Add(telco);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTelco", new { id = telco.TelcoID }, _telco);
+            result_0 = new { status = 1, message = "Create Telco successfully" };
+            RsJson_0 = JsonConvert.SerializeObject(result_0);
+            return Ok(RsJson_0);
         }
 
         //update a telco
         [HttpPut("Telco/{id}")]
-        public async Task<IActionResult> PutTelco(int id, Telco telco, string token)
+        public async Task<IActionResult> PutTelco(int id, TelcoDTO _telco, string token)
         {
+            object result_0;
+            string RsJson_0 = String.Empty;
             if (!CheckRole(token))
             {
-                return Unauthorized();
+                result_0 = new { status = 0, message = "Permission denie., Please login with admin account or try to login again" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(401, RsJson_0);
             }
 
-            if (id != telco.TelcoID)
+            var telco = _context.Telcos.Find(id) ?? null;
+            if (telco == null)
             {
-                return BadRequest();
+                result_0 = new { status = 0, message = "TelcoID is not exists" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
+            //xử lý ảnh
+            string image_path = "";
+            string old_image = telco.Logo;
+            if (_telco.Logo != null)
+            {
+                if (!FileController.CheckImageSize(_telco.Logo, 100))
+                {
+                    result_0 = new { status = 0, message = "File size is too large" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
+                }
+                //check extension
+                if (!FileController.CheckImageIsValid(_telco.Logo))
+                {
+                    result_0 = new { status = 0, message = "Image is not valid" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
+                }
+                image_path = FileController.UploadImage(_telco.Logo);
+            }
+            else
+            {
+                image_path = old_image;
+            }
+            telco.TelcoName = _telco.TelcoName;
+            telco.Description = _telco.Description; 
+            telco.Logo = image_path;
             _context.Entry(telco).State = EntityState.Modified;
             try
             {
@@ -560,33 +606,50 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             {
                 if (!TelcoExists(id))
                 {
-                    return NotFound();
+                    result_0 = new { status = 0, message = "TelcoID is not exists" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
                 }
                 else
                 {
                     throw;
                 }
             }
-            return NoContent();
+            //kiểm tra nếu ảnh mới khác ảnh cũ thì xóa ảnh cũ
+            if (image_path != old_image)
+            {
+                FileController.DeleteFile(old_image);
+            }
+            result_0 = new { status = 1, message = "Update Telco successfully" };
+            RsJson_0 = JsonConvert.SerializeObject(result_0);
+            return Ok(RsJson_0);
         }
 
         //delete a telco
         [HttpDelete("Telco/{id}")]
         public async Task<IActionResult> DeleteTelco(int id, string token)
         {
+            object result_0;
+            string RsJson_0 = String.Empty;
             if (!CheckRole(token))
             {
-                return Unauthorized();
+                result_0 = new { status = 0, message = "Permission denie., Please login with admin account or try to login again" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(401, RsJson_0);
             }
 
             var telco = await _context.Telcos.FindAsync(id);
             if (telco == null)
             {
-                return NotFound();
+                result_0 = new { status = 0, message = "TelcoID is not exists" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
             _context.Telcos.Remove(telco);
             await _context.SaveChangesAsync();
-            return NoContent();
+            result_0 = new { status = 1, message = "Delete Telco successfully" };
+            RsJson_0 = JsonConvert.SerializeObject(result_0);
+            return Ok(RsJson_0);
         }
 
         //TelcoExists
@@ -641,9 +704,13 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<CallerTunesPackage>> PostCallerTunesPackage(CallerTunesPackageDTO _callerTunesPackage, string token)
         {
+            object result_0;
+            string RsJson_0 = String.Empty;
             if (!CheckRole(token))
             {
-                return Unauthorized();
+                result_0 = new { status = 0, message = "Permission denie., Please login with admin account or try to login again" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(401, RsJson_0);
             }
             //xử lý ảnh
             string mp3_path = "";
@@ -651,18 +718,24 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             {
                 if (!FileController.CheckImageSize(_callerTunesPackage.Mp3, 100))
                 {
-                    return BadRequest("File size is too large");
+                    result_0 = new { status = 0, message = "File size is too large" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
                 }
                 //check extension
-                if (!FileController.CheckImageIsValid(_callerTunesPackage.Mp3))
+                if (!FileController.CheckMp3IsValid(_callerTunesPackage.Mp3))
                 {
-                    return BadRequest("Image is not valid");
+                    result_0 = new { status = 0, message = "Mp3 is not valid" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
                 }
                 mp3_path = FileController.UploadImage(_callerTunesPackage.Mp3);
             }
             else
             {
-                return BadRequest("Mp3 is required");
+                result_0 = new { status = 0, message = "Mp3 is required" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
             //create a new caller tunes package
             CallerTunesPackage callerTunesPackage = new CallerTunesPackage
@@ -677,22 +750,30 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             _context.CallerTunesPackages.Add(callerTunesPackage);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCallerTunesPackage", new { id = callerTunesPackage.PackageID }, callerTunesPackage);
+            result_0 = new { status = 1, message = "Create Caller Tunes Package successfully" };
+            RsJson_0 = JsonConvert.SerializeObject(result_0);
+            return Ok(RsJson_0);
         }
 
         //update a caller tunes package
         [HttpPut("CallerTunesPackage/{id}")]
         public async Task<IActionResult> PutCallerTunesPackage(int id, CallerTunesPackageDTO _callerTunesPackage, string token)
         {
+            object result_0;
+            string RsJson_0 = String.Empty;
             if (!CheckRole(token))
             {
-                return Unauthorized();
+                result_0 = new { status = 0, message = "Permission denie., Please login with admin account or try to login again" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(401, RsJson_0);
             }
             var callerTunesPackage = _context.CallerTunesPackages.Find(id) ?? null;
 
             if (callerTunesPackage == null)
             {
-                return NotFound();
+                result_0 = new { status = 0, message = "CallerTunesPackageID is not exists" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
             //xử lý ảnh
             string mp3 = "";
@@ -702,7 +783,7 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             }
             else
             {
-                mp3 = "default.mp3";
+                mp3 =  callerTunesPackage.Icon;
             }
 
             callerTunesPackage.PackageName = _callerTunesPackage.PackageName;
@@ -721,33 +802,52 @@ namespace OnlineMobileServices_API.Controllers.Dashboard
             {
                 if (!CallerTunesPackageExists(id))
                 {
-                    return NotFound();
+                    result_0 = new { status = 0, message = "CallerTunesPackageID is not exists" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
                 }
                 else
                 {
-                    throw;
+                    result_0 = new { status = 0, message = "Update Caller Tunes Package failed" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(500, RsJson_0);
                 }
             }
-            return NoContent();
+            //kiểm tra nếu ảnh mới khác ảnh cũ thì xóa ảnh cũ
+            if (mp3 != callerTunesPackage.Icon)
+            {
+                FileController.DeleteFile(callerTunesPackage.Icon);
+            }
+            result_0 = new { status = 1, message = "Update Caller Tunes Package successfully" };
+            RsJson_0 = JsonConvert.SerializeObject(result_0);
+            return Ok(RsJson_0);
         }
 
         //delete a caller tunes package
         [HttpDelete("CallerTunesPackage/{id}")]
         public async Task<IActionResult> DeleteCallerTunesPackage(int id, string token)
         {
+            object result_0;
+            string RsJson_0 = String.Empty;
             if (!CheckRole(token))
             {
-                return Unauthorized();
+                result_0 = new { status = 0, message = "Permission denie., Please login with admin account or try to login again" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(401, RsJson_0);
             }
 
             var callerTunesPackage = await _context.CallerTunesPackages.FindAsync(id);
             if (callerTunesPackage == null)
             {
-                return NotFound();
+                result_0 = new { status = 0, message = "CallerTunesPackageID is not exists" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return StatusCode(400, RsJson_0);
             }
             _context.CallerTunesPackages.Remove(callerTunesPackage);
             await _context.SaveChangesAsync();
-            return NoContent();
+            result_0 = new { status = 1, message = "Delete Caller Tunes Package successfully" };
+            RsJson_0 = JsonConvert.SerializeObject(result_0);
+            return Ok(RsJson_0);
         }
 
         //CallerTunesPackageExists

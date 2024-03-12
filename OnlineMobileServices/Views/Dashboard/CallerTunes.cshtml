@@ -1,3 +1,226 @@
+@using OnlineMobileServices_Models.DTOs
+@using OnlineMobileServices_Models.Models;
+
+@model IEnumerable<CallerTunesPackage>;
+@inject IHttpContextAccessor HttpContextAccessor
 @{
-    ViewData["Title"] = "CallerTunes";
+    var _token = HttpContextAccessor?.HttpContext?.Session.GetString("Token");
+    ViewData["_token"] = _token;
+}
+@{
+    ViewData["Title"] = "Caller Tunes Packages";
+}
+<header class="header-2">
+    <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png')" loading="lazy">
+        <span class="mask bg-gradient-primary opacity-4"></span>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7 text-center mx-auto">
+                    <h1 class="text-white pt-3 mt-n5">
+                        Caller Tunes Packages
+                    </h1>
+
+                    <div class="buttons">
+                        <a type="button" class="btn bg-gradient-primary mt-4" asp-action="index" asp-controller="Dashboard">
+                            <i class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        @* create *@
+                        <a type="button" class="btn bg-gradient-success mt-4" asp-action="CreateCallerTunes" asp-controller="Dashboard">
+                            <i class="fa-solid fa-plus me-2"></i>Create New Package
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<section class="card card-body mx-3 mx-md-4 mt-n6 mb-1  bg-gray-200 py-3">
+
+    <h3 class="text-primary text-center mt-2 mb-2">
+        Recharge Packages
+    </h3>
+    <div class="table-responsive">
+        <table class="table align-items-center mb-0">
+            <thead>
+                <tr>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Song Name</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Amount</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Validity</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Listen</th>
+                    <th class="text-secondary opacity-7"></th>
+                </tr>
+            </thead>
+            <tbody>
+
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex px-2 py-1">
+                                <div class="d-flex flex-column justify-content-center">
+                                    <h6 class="mb-0 text-xs">
+                                        <a asp-action="CallerTunes" asp-controller="CallerTunes" asp-route-id="@item.PackageID">
+                                            @item.PackageName
+                                        </a>
+
+                                    </h6>
+                                    <p class="text-xs text-secondary mb-0">Mp3</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <p class="text-xs font-weight-bold mb-0">$@item.Amount</p>
+                        </td>
+                        <td class="align-middle text-center text-sm">
+                            <p>
+                                <span class="badge badge-sm badge-success">@item.Validity</span>
+                            </p>
+
+                            <p class="text-xs text-secondary mb-0">Days</p>
+                        </td>
+                        <td class="align-middle text-center">
+                            <span class="text-secondary text-xs font-weight-bold">
+                                <audio controls>
+                                    <source src="@item.Icon" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </span>
+                        </td>
+                        <td class="align-middle">
+                            <a asp-action="CallerTunes" asp-controller="CallerTunes" asp-route-id="@item.PackageID" class="text-secondary font-weight-bold text-xs">
+                                Rental
+                            </a>
+                             <a class="btn btn-sm
+                                btn-primary" asp-action="EditCallerTunes" asp-controller="Dashboard" asp-route-id="@item.PackageID">
+                                <i class="fa-solid fa-pencil"></i>
+                            </a>
+                            <button class="btn btn-sm btn-danger" data-id="@item.PackageID">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+   
+
+</section>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var _token = "@ViewData["_token"]" ?? "";
+            console.log("_token", '@ViewData["_token"]');
+
+            $("button").click(function () {
+                var id = $(this).data("id");
+                console.log("id", id);
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    type: "warning",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: 'btn-danger',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!',
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                }).then((result) => {
+                    if (result.value) {
+                        del(id);
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: "Cancelled",
+                            text: "Your data is safe :)",
+                            type: "error",
+                            icon: "error",
+                            confirmButtonClass: 'btn-success',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            });
+
+            function del(id) {
+                console.log("id", id);
+                if (_token == "") {
+                    Swal.fire({
+                        title: "Failed !",
+                        text: "Please login to continue.",
+                        type: "error",
+                        icon: "error",
+                        confirmButtonClass: 'btn-success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.value) {
+                            //Redirect to payment page
+                            window.location.href = '@Url.Action("Logout", "Home")';
+                        }
+                    });
+                    return;
+                }
+                $.ajax({
+                    url: '@Program.API_URL/Dashboard/RechargePackage/' + id + '?token=' + _token,
+                    type: "DELETE",
+                    dataType: "json",
+
+                    success: function (response) {
+                        console.log("response", response);
+                        if (response.status == 1) {
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: "Your data has been deleted.",
+                                type: "success",
+                                icon: "success",
+                                confirmButtonClass: 'btn-success',
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.value) {
+                                    //reload page
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Failed !",
+                                text: response.message,
+                                type: "error",
+                                icon: "error",
+                                confirmButtonClass: 'btn-danger',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+
+                        var text_error = xhr.status + ' ' + xhr.statusText;
+                        var title_error = 'Failed !';
+                        var error = JSON.parse(xhr.responseText);
+                        if (error.errors) {
+                            text_error = '';
+                            $.each(error.errors, function (key, value) {
+                                text_error += value + '<br>';
+                            });
+                        }
+                        title_error = error.title ? error.title : title_error;
+                        text_error = error.message ?? text_error;
+
+                        Swal.fire({
+                            title: title_error,
+                            html: text_error,
+                            type: "error",
+                            icon: "error",
+                            confirmButtonClass: 'btn-danger',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            }
+        });
+
+    </script>
 }

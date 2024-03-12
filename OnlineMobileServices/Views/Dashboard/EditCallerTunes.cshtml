@@ -1,3 +1,239 @@
+@using OnlineMobileServices_Models.DTOs
+@using OnlineMobileServices_Models.Models;
+@model CallerTunesPackage;
+@inject IHttpContextAccessor HttpContextAccessor
 @{
-    ViewData["Title"] = "EditCallerTunes";
+    var _token = HttpContextAccessor?.HttpContext?.Session.GetString("Token");
+    ViewData["_token"] = _token;
+}
+
+@{
+    ViewData["Title"] = "Edit Caller Tunes Package";
+
+}
+<header class="header-2">
+    <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png')" loading="lazy">
+        <span class="mask bg-gradient-primary opacity-4"></span>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7 text-center mx-auto">
+                    <h1 class="text-white pt-3 mt-n5">
+                        Create New Telco
+                    </h1>
+
+                    <div class="buttons">
+                        <a type="button" class="btn bg-gradient-primary mt-4" asp-action="index" asp-controller="Dashboard">
+                            <i class="fa-solid fa-gauge me-2"></i></i>Back to Dashboard
+                        </a>
+                        @* create *@
+                        <a type="button" class="btn bg-gradient-info mt-4" asp-action="CallerTunes" asp-controller="Dashboard">
+                            <i class="fa-solid fa-arrow-left me-2"></i> Manage Telco
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<section class="card card-body mx-3 mx-md-4 mt-n6 mb-1  bg-gray-200 py-3">
+
+    <h3 class="text-primary text-center mt-2 mb-2">
+        Telco
+    </h3>
+    @* show ViewBag.Telco *@
+
+
+    <form role="form" action="#" method="post" id="doSubmit">
+        <div class="row">
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>PackageName</label>
+                    <input class="form-control" placeholder="Package Name" type="text" id="PackageName" required asp-for="PackageName">
+                </div>
+            </div>
+
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Amount</label>
+                    <input class="form-control" placeholder="Amount" type="number" id="Amount" required asp-for="Amount">
+                </div>
+            </div>
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Validity</label>
+                    <input class="form-control" placeholder="Validity" type="number" id="Validity" required asp-for="Validity">
+                </div>
+            </div>
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Status</label>
+                    <input class="form-control" placeholder="Status" type="text" id="Status" required asp-for="Status" value="Active">
+                </div>
+            </div>
+            <div class="col-md-12 pe-2 mb-3">
+                <div class="input-group input-group-static">
+                    <label>Mp3</label>
+                    <input class="form-control" placeholder="Mp3" type="file" id="Mp3" accept=".mp3">
+                </div>
+            </div>
+
+
+
+
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12 pe-2 mb-3">
+                <button type="submit" class="btn bg-gradient-primary" name="SubmitBtn" id="SubmitBtn">
+                    <i class="fa-solid fa-check me-2"></i>Submit
+                </button>
+            </div>
+        </div>
+    </form>
+
+</section>
+   @* if (Mp3 == null) {
+                    TextErr += "Mp3 is required.<br>";
+                    checkOK = false;
+                } *@
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var _token = "@ViewData["_token"]" ?? "";
+
+            $("#doSubmit").submit(function (event) {
+                event.preventDefault(); // Prevent default form submission
+                if (_token == "") {
+                    Swal.fire({
+                        title: "Failed !",
+                        text: "Please login to continue.",
+                        type: "error",
+                        icon: "success",
+                        confirmButtonClass: 'btn-success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.value) {
+                            //Redirect to payment page
+                            window.location.href = '@Url.Action("Logout", "Home")';
+                        }
+                    });
+                    return;
+                }
+                var PackageName = $("#PackageName").val();
+                var Amount = $("#Amount").val();
+                var Validity = $("#Validity").val();
+                var Status = $("#Status").val();
+                var Mp3 = $("#Mp3")[0].files[0];
+
+
+                //check null từng field
+                var checkOK = true;
+                var TextErr = "";
+                if (PackageName == "") {
+                    TextErr += "Package Name is required.<br>";
+                    checkOK = false;
+                }
+                if (Amount == "") {
+                    TextErr += "Amount is required.<br>";
+                    checkOK = false;
+                }
+                if (Validity == "") {
+                    TextErr += "Validity is required.<br>";
+                    checkOK = false;
+                }
+                if (Status == "") {
+                    TextErr += "Status is required.<br>";
+                    checkOK = false;
+                }
+             
+
+                if (!checkOK) {
+                    Swal.fire({
+                        title: "Failed !",
+                        html: TextErr,
+                        type: "error",
+                        icon: "error",
+                        confirmButtonClass: 'btn-danger',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append("PackageName", PackageName);
+                formData.append("Amount", Amount);
+                formData.append("Validity", Validity);
+                formData.append("Status", Status);
+                formData.append("Mp3", Mp3);
+
+                $.ajax({
+                    url: '@Program.API_URL/Dashboard/CallerTunesPackage/@Model.PackageID?token=' + _token,
+                    type: 'put',
+                    data: formData, // Sử dụng FormData thay vì jsonData
+                    processData: false, // Cho biết không xử lý dữ liệu thành query string
+                    contentType: false, // FormData sẽ tự thiết lập content type
+                    dataType: 'json',
+                    beforeSend: function () {
+                        console.log("beforeSend");
+                        $('button[name="SubmitBtn"]').html('<i class="fas fa-spinner fa-spin"></i> Progressing...').attr('disabled', 'disabled');
+                    },
+                    success: function (data) {
+                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+                        console.log(typeof data);
+                        if (data.status == 1) {
+                            $("#SubmitBtn").resetForm();
+                            Swal.fire({
+                                title: "Done !",
+                                text: data.message,
+                                type: "success",
+                                icon: "success",
+                                confirmButtonClass: 'btn-success',
+                                confirmButtonText: 'OK'
+                            });
+
+                        } else {
+                            Swal.fire({
+                                title: "Failed !",
+                                text: data.message,
+                                type: "error",
+                                icon: "error",
+                                confirmButtonClass: 'btn-danger',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+
+                        var text_error = xhr.status + ' ' + xhr.statusText;
+                        var title_error = 'Failed !';
+                        var error = JSON.parse(xhr.responseText);
+                        if (error.errors) {
+                            text_error = '';
+                            $.each(error.errors, function (key, value) {
+                                text_error += value + '<br>';
+                            });
+                        }
+                        title_error = error.title ? error.title : title_error;
+                        text_error = error.message ?? text_error;
+
+                        Swal.fire({
+                            title: title_error,
+                            html: text_error,
+                            type: "error",
+                            icon: "error",
+                            confirmButtonClass: 'btn-danger',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+
+
+
+
+            });
+        });
+    </script>
 }

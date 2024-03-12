@@ -176,7 +176,86 @@ namespace OnlineMobileServices_API.Controllers
 
 
 
+        //update user
+        [HttpPut("UpdateUser/{id}")]
+        public async Task<IActionResult> UpdateUser(int id, String FullName = null, String Email = null, String oldPass = null, String NewPass = null, String reNewPass = null)
+        {
+            try
+            {
+                object result_0;
+                string RsJson_0 = String.Empty;
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    result_0 = new { status = 0, message = "User Not Found" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(401, RsJson_0);
+                }
+                //check null
+                if (FullName == null)
+                {
+                    result_0 = new { status = 0, message = "Please enter your full name" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
+                }
+                if (Email == null)
+                {
+                    result_0 = new { status = 0, message = "Please enter your email" };
+                    RsJson_0 = JsonConvert.SerializeObject(result_0);
+                    return StatusCode(400, RsJson_0);
+                }
 
+                user.FullName = FullName;
+                user.Email = Email;
+
+                //check nếu có thay đổi mật khẩu
+                if (oldPass != null && NewPass != null && reNewPass != null)
+                {
+                    if (oldPass == null || NewPass == null || reNewPass == null)
+                    {
+                        result_0 = new { status = 0, message = "Please fill all the fields" };
+                        RsJson_0 = JsonConvert.SerializeObject(result_0);
+                        return StatusCode(400, RsJson_0);
+                    }
+                    if (NewPass != reNewPass)
+                    {
+                        result_0 = new { status = 0, message = "New password and re-new password are not the same" };
+                        RsJson_0 = JsonConvert.SerializeObject(result_0);
+                        return StatusCode(400, RsJson_0);
+                    }
+                    if (_userService.HashPassword(oldPass) != user.Password)
+                    {
+                        result_0 = new { status = 0, message = "Old password is incorrect" };
+                        RsJson_0 = JsonConvert.SerializeObject(result_0);
+                        return StatusCode(400, RsJson_0);
+                    }
+                    user.Password = _userService.HashPassword(NewPass);
+                }
+
+
+                _context.Entry(user).State = EntityState.Modified;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+
+                }
+
+                result_0 = new { status = 1, message = "Update Success" };
+                RsJson_0 = JsonConvert.SerializeObject(result_0);
+                return Ok(RsJson_0);
+            }
+            catch (Exception)
+            {
+                // Trả về mã lỗi 500 Internal Server Error nếu có lỗi xảy ra trong quá trình xử lý
+                var errorObject = new { message = "Something went wrong" };
+                var errorJson = JsonConvert.SerializeObject(errorObject);
+                return StatusCode(500, errorJson);
+            }
+        }
 
 
     }

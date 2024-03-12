@@ -15,7 +15,7 @@ namespace OnlineMobileServices_Models.DTOs
         public double Amount { get; set; }
         public int Validity { get; set; }
         public string Status { get; set; }
-        [Required]
+
         [Display(Name = "File")]
         public IFormFile? Mp3 { get; set; }
 

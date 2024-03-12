@@ -1,0 +1,271 @@
+@using OnlineMobileServices_Models.DTOs
+@using OnlineMobileServices_Models.Models;
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var _token = HttpContextAccessor?.HttpContext?.Session.GetString("Token");
+    ViewData["_token"] = _token;
+}
+@model User;
+@{
+    ViewData["Title"] = "Profile ";
+}
+<header class="header-2">
+    <div class="page-header min-vh-75" style="background-image: url('https://i.imgur.com/oQMadpR.png')" loading="lazy">
+        <span class="mask bg-gradient-primary opacity-4"></span>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7 text-center mx-auto">
+                    <h1 class="text-white pt-3 mt-n5">Hello, @Model.MobileNumber</h1>
+                    <div class="blockquote">
+                        <p class="lead text-white mt-3 px-5">
+                            View and edit your profile information here.
+
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="card card-body shadow-xl mx-3 mx-md-4 mt-n6 mb-4">
+
+    <section class="py-md-7 py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 col-10 mx-auto text-center">
+                    <div class="mb-md-5">
+                        <h3>
+                            Update your profile
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card card-plain">
+                        <form id="doSubmit" method="PUT" autocomplete="off">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="input-group input-group-static mb-4">
+                                            <label>Full Name</label>
+                                            <input type="text" class="form-control" placeholder="Full Name" asp-for="FullName" id="FullName">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-user"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ps-md-2">
+                                        <div class="input-group input-group-static mb-4">
+                                            <label>Email</label>
+                                            <input type="email" class="form-control" placeholder="Email" asp-for="Email" id="Email">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-envelope"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p class="text-warning text-center">
+                                        If you do not want to change your password, skip the section below
+                                    </p>
+                                    <div class="col-md-12 ps-md-2">
+                                        <div class="input-group input-group-static mb-4">
+                                            <label>Old Password</label>
+                                            <input type="password" class="form-control" id="oldPass" autocomplete="new-password">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-envelope"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ps-md-2">
+                                        <div class="input-group input-group-static mb-4">
+                                            <label>New Password</label>
+                                            <input type="password" class="form-control" id="NewPass" autocomplete="new-password">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-envelope"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ps-md-2">
+                                        <div class="input-group input-group-static mb-4">
+                                            <label>Re-enter New Password</label>
+                                            <input type="password" class="form-control" id="reNewPass" autocomplete="new-password">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-envelope"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12 text-center">
+                                        <button type="submit" class="btn bg-gradient-info mt-4">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var _token = "@ViewData["_token"]" ?? "";
+
+            $("#doSubmit").submit(function (event) {
+                event.preventDefault(); // Prevent default form submission
+                if (_token == "") {
+                    Swal.fire({
+                        title: "Failed !",
+                        text: "Please login to continue.",
+                        type: "error",
+                        icon: "error",
+                        confirmButtonClass: 'btn-success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.value) {
+                            //Redirect to payment page
+                            window.location.href = '@Url.Action("Logout", "Home")';
+                        }
+                    });
+                    return;
+                }
+                var FullName = $("#FullName").val();
+                var Email = $("#Email").val();
+                var oldPass = $("#oldPass").val();
+                var NewPass = $("#NewPass").val();
+                var reNewPass = $("#reNewPass").val();
+
+
+
+                //check null từng field
+                var checkOK = true;
+                var TextErr = "";
+                if (FullName == "") {
+                    TextErr += "Full Name is required.<br>";
+                    checkOK = false;
+                }
+                if (Email == "") {
+                    TextErr += "Email is required.<br>";
+                    checkOK = false;
+                }
+                //nếu nhập pass mới thì check pass cũ và pass nhập lại
+                if (NewPass != "" || reNewPass != "" || oldPass != "") {
+                    if (oldPass == "") {
+                        TextErr += "Old Password is required.<br>";
+                        checkOK = false;
+                    }
+                    if (NewPass == "") {
+                        TextErr += "New Password is required.<br>";
+                        checkOK = false;
+                    }
+                    if (reNewPass == "") {
+                        TextErr += "Re-enter New Password is required.<br>";
+                        checkOK = false;
+                    }
+                    if (NewPass != reNewPass) {
+                        TextErr += "New Password and Re-enter New Password must be the same.<br>";
+                        checkOK = false;
+                    }
+                }
+
+
+                if (!checkOK) {
+                    Swal.fire({
+                        title: "Failed !",
+                        html: TextErr,
+                        type: "error",
+                        icon: "error",
+                        confirmButtonClass: 'btn-danger',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append('FullName', FullName);
+                formData.append('Email', Email);
+                formData.append('oldPass', oldPass);
+                formData.append('NewPass', NewPass);
+                formData.append('reNewPass', reNewPass);
+
+        @* http://localhost:8001/api/User/UpdateUser/1?FullName=FullName&Email=Email *@
+                    $.ajax({
+                        url: `@Program.API_URL/User/UpdateUser/@Model.UserID?FullName=${FullName}&Email=${Email}&oldPass=${oldPass}&NewPass=${NewPass}&reNewPass=${reNewPass}&token=${_token}`,
+                        type: 'PUT',
+                        data: formData, // Sử dụng FormData thay vì jsonData
+                        processData: false, // Cho biết không xử lý dữ liệu thành query string
+                        contentType: false, // FormData sẽ tự thiết lập content type
+                        dataType: 'json',
+                        beforeSend: function () {
+                            console.log("beforeSend");
+                            $('button[name="SubmitBtn"]').html('<i class="fas fa-spinner fa-spin"></i> Progressing...').attr('disabled', 'disabled');
+                        },
+                        success: function (data) {
+                            $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+                            console.log(typeof data);
+                            if (data.status == 1) {
+                                $("#SubmitBtn").resetForm();
+                                Swal.fire({
+                                    title: "Done !",
+                                    text: data.message,
+                                    type: "success",
+                                    icon: "success",
+                                    confirmButtonClass: 'btn-success',
+                                    confirmButtonText: 'OK'
+                                })
+                                    .then((result) => {
+                                        if (result.value) {
+                                            //Redirect to payment page
+                                            window.location.href = '@Url.Action("Logout", "Home")';
+                                        }
+                                    })
+                                    ;
+
+                            } else {
+                                Swal.fire({
+                                    title: "Failed !",
+                                    text: data.message,
+                                    type: "error",
+                                    icon: "error",
+                                    confirmButtonClass: 'btn-danger',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            $('button[name="SubmitBtn"]').html('Submit').removeAttr('disabled');
+
+                            var text_error = xhr.status + ' ' + xhr.statusText;
+                            var title_error = 'Failed !';
+                            var error = JSON.parse(xhr.responseText);
+                            if (error.errors) {
+                                text_error = '';
+                                $.each(error.errors, function (key, value) {
+                                    text_error += value + '<br>';
+                                });
+                            }
+                            title_error = error.title ? error.title : title_error;
+                            text_error = error.message ?? text_error;
+
+                            Swal.fire({
+                                title: title_error,
+                                html: text_error,
+                                type: "error",
+                                icon: "error",
+                                confirmButtonClass: 'btn-danger',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+
+
+
+
+            });
+        });
+    </script>
+}

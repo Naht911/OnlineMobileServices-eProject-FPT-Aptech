@@ -50,8 +50,29 @@ namespace OnlineMobileServices_FE.Controllers
                 _memoryCache.Set("TelcoData", telcoData, cacheEntryOptions);
             }
             ViewBag.Telco = telcoData;
+            //count users 
             return View();
         }
+
+        //Profile
+        [HttpGet("Profile")]
+        public IActionResult Profile()
+        {
+            var userJson = HttpContext.Session.GetString("User");
+            if (userJson != null)
+            {
+                var user = JsonConvert.DeserializeObject<User>(userJson);
+                if (user != null)
+                {
+                    return View(user);
+                }
+
+            }
+            return RedirectToAction("Login");
+        }
+
+
+
         [HttpGet("Privacy")]
         public IActionResult Privacy()
         {
@@ -355,19 +376,96 @@ namespace OnlineMobileServices_FE.Controllers
                             //redic to home
                             return RedirectToAction("Index", "Home");
                         }
-                        //redic to fail
+                        try
+                        {
+
+                            var fullEndPoint = $"{Program.API_URL}/History/{PackageNameHistory}/{BillID}";
+                            var response = await _client.GetAsync(fullEndPoint);
+                            if (response.IsSuccessStatusCode)
+                            {
+                                var result = await response.Content.ReadAsStringAsync();
+                                var packageList = JsonConvert.DeserializeObject<dynamic>(result);
+                                //clear session
+                                // HttpContext.Session.Remove("PackageNameHistory");
+                                // HttpContext.Session.Remove("BillID");
+                                var responsePut = await _client.PutAsJsonAsync($"{fullEndPoint}?status=Success", "Fail");
+                                if (!responsePut.IsSuccessStatusCode)
+                                {
+                                    // return NotFound("Update status fail");
+
+                                }
+
+                            }
+                        }
+                        catch (System.Exception)
+                        {
+
+
+                        }
                         return RedirectToAction("PaymentFail");
                     }
 
                     if (executedPayment.state.ToLower() != "approved")
                     {
-                        //
+                        try
+                        {
+                            string PackageNameHistory = HttpContext.Session.GetString("PackageNameHistory") ?? String.Empty;
+                            var fullEndPoint = $"{Program.API_URL}/History/{PackageNameHistory}/{BillID}";
+                            var response = await _client.GetAsync(fullEndPoint);
+                            if (response.IsSuccessStatusCode)
+                            {
+                                var result = await response.Content.ReadAsStringAsync();
+                                var packageList = JsonConvert.DeserializeObject<dynamic>(result);
+                                //clear session
+                                // HttpContext.Session.Remove("PackageNameHistory");
+                                // HttpContext.Session.Remove("BillID");
+                                var responsePut = await _client.PutAsJsonAsync($"{fullEndPoint}?status=Success", "Fail");
+                                if (!responsePut.IsSuccessStatusCode)
+                                {
+                                    // return NotFound("Update status fail");
+
+                                }
+
+                            }
+                        }
+                        catch (System.Exception)
+                        {
+
+
+                        }
                         return RedirectToAction("PaymentFail");
                     }
                     else
                     {
+                        try
+                        {
+                            string PackageNameHistory = HttpContext.Session.GetString("PackageNameHistory") ?? String.Empty;
+                            var fullEndPoint = $"{Program.API_URL}/History/{PackageNameHistory}/{BillID}";
+                            var response = await _client.GetAsync(fullEndPoint);
+                            if (response.IsSuccessStatusCode)
+                            {
+                                var result = await response.Content.ReadAsStringAsync();
+                                var packageList = JsonConvert.DeserializeObject<dynamic>(result);
+                                //clear session
+                                // HttpContext.Session.Remove("PackageNameHistory");
+                                // HttpContext.Session.Remove("BillID");
+                                var responsePut = await _client.PutAsJsonAsync($"{fullEndPoint}?status=Success", "Success");
+                                if (!responsePut.IsSuccessStatusCode)
+                                {
+                                    // return NotFound("Update status fail");
+
+                                }
+
+                            }
+                        }
+                        catch (System.Exception)
+                        {
+
+
+                        }
                         //redic to success
                         return RedirectToAction("PaymentSuccess");
+
                     }
                 }
             }

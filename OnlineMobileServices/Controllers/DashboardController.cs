@@ -114,7 +114,7 @@ namespace OnlineMobileServices.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
-            var RechargeHistory = await _client.GetAsync($"{DASHBOARD_API_URL}/RechargeHistory?token={Admin().Token}");
+            var RechargeHistory = await _client.GetAsync($"{DASHBOARD_API_URL}/History/Recharge?token={Admin().Token}");
             if (RechargeHistory.IsSuccessStatusCode)
             {
                 var rechargeHistoryList = await RechargeHistory.Content.ReadFromJsonAsync<List<RechargeHistory>>();
@@ -212,10 +212,11 @@ namespace OnlineMobileServices.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
-            var CallerTunes = await _client.GetAsync($"{DASHBOARD_API_URL}/History/CallerTunes/?token={Admin().Token}");
+            var CallerTunes = await _client.GetAsync($"{DASHBOARD_API_URL}/CallerTunesPackage?token={Admin().Token}");
             if (CallerTunes.IsSuccessStatusCode)
             {
                 var callerTunesList = await CallerTunes.Content.ReadFromJsonAsync<List<CallerTunesPackage>>();
+                Console.WriteLine(callerTunesList);
                 return View(callerTunesList);
             }
             return View();
@@ -240,7 +241,7 @@ namespace OnlineMobileServices.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
-            var Package = await _client.GetFromJsonAsync<CallerTunesPackage>($"{DASHBOARD_API_URL}/CallerTunes/{id}?token={Admin().Token}");
+            var Package = await _client.GetFromJsonAsync<CallerTunesPackage>($"{DASHBOARD_API_URL}/CallerTunesPackage/{id}?token={Admin().Token}");
             if (Package == null)
             {
                 return NotFound();
@@ -257,7 +258,8 @@ namespace OnlineMobileServices.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
-            var CallerTunesHistory = await _client.GetAsync($"{DASHBOARD_API_URL}/History/CallerTunesHistory/?token={Admin().Token}");
+            // /Dashboard/History/CallerTunes?
+            var CallerTunesHistory = await _client.GetAsync($"{DASHBOARD_API_URL}/History/CallerTunes/?token={Admin().Token}");
             if (CallerTunesHistory.IsSuccessStatusCode)
             {
                 var callerTunesHistoryList = await CallerTunesHistory.Content.ReadFromJsonAsync<List<CallerTunesHistory>>();
@@ -280,6 +282,25 @@ namespace OnlineMobileServices.Controllers
             {
                 var postpaidList = await Postpaid.Content.ReadFromJsonAsync<List<PostPaidHistory>>();
                 return View(postpaidList);
+            }
+            return View();
+        }
+        #endregion
+
+        #region  user
+
+        [HttpGet("User")]
+        public async Task<IActionResult> User()
+        {
+            if (!Admin().IsAdmin)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            var Users = await _client.GetAsync($"{DASHBOARD_API_URL}/User?token={Admin().Token}");
+            if (Users.IsSuccessStatusCode)
+            {
+                var userList = await Users.Content.ReadFromJsonAsync<List<User>>();
+                return View(userList);
             }
             return View();
         }
